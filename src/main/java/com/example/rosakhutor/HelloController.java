@@ -12,6 +12,7 @@ import java.sql.SQLException;
 
 public class HelloController {
     DbConnector dbConnector = new DbConnector();
+    SellerController sellerController = new SellerController();
 
     @FXML
     private TextField login;
@@ -25,14 +26,6 @@ public class HelloController {
     @FXML
     private Label label;
 
-    public void OpenEmployeeWindow() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("seller.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        Stage stage = (Stage)entrance.getScene().getWindow();
-        //stage.setTitle("СОТРУДНИКИ");
-        stage.setScene(scene);
-        stage.show();
-    }
 
     public void admission() throws SQLException, ClassNotFoundException, IOException {
         if(login.getText().equals("") || pasword.getText().equals(""))
@@ -45,7 +38,8 @@ public class HelloController {
             ResultSet resultSet = dbConnector.getEmployeeLoginPasword(login.getText(), pasword.getText());
             if (resultSet.next())
             {
-                OpenEmployeeWindow();
+                int role = resultSet.getInt(3);
+                sellerController.OpenEmployeeWindow(role);
             }
 
             else
