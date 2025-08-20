@@ -39,7 +39,9 @@ public class HelloController {
             if (resultSet.next())
             {
                 int role = resultSet.getInt(3);
-                sellerController.OpenEmployeeWindow(role);
+                String images = resultSet.getString(4);
+                System.out.println(images);
+                sellerController.OpenEmployeeWindow(role, images);
             }
 
             else
