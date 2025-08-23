@@ -26,6 +26,13 @@ public class HelloController {
     @FXML
     private Label label;
 
+    @FXML
+    private Button getPassword;
+
+    @FXML
+    private Label passwordGetLabel;
+
+
 
     public void admission() throws SQLException, ClassNotFoundException, IOException {
         if(login.getText().equals("") || pasword.getText().equals(""))
@@ -38,10 +45,13 @@ public class HelloController {
             ResultSet resultSet = dbConnector.getEmployeeLoginPasword(login.getText(), pasword.getText());
             if (resultSet.next())
             {
-                int role = resultSet.getInt(3);
+                String role = resultSet.getString(3);
+                System.out.println(role);
                 String images = resultSet.getString(4);
                 System.out.println(images);
-                sellerController.OpenEmployeeWindow(role, images);
+                String name = resultSet.getString(5);
+                System.out.println(name);
+                sellerController.OpenEmployeeWindow(role, images, name, (Stage) label.getScene().getWindow());
             }
 
             else
@@ -51,5 +61,12 @@ public class HelloController {
 
         }
     }
+
+    public void getPassword()
+    {
+        passwordGetLabel.setText(pasword.getText());
+    }
+
+
 
 }

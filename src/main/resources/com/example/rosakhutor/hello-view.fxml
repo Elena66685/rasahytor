@@ -18,5 +18,7 @@
       </Label>
       <Button fx:id="entrance" layoutX="192.0" layoutY="262.0" mnemonicParsing="false" onAction="#admission" text="Войти" />
       <Label fx:id="label" layoutX="315.0" layoutY="324.0" prefHeight="18.0" prefWidth="225.0" />
+      <Button fx:id="getPassword" layoutX="340.0" layoutY="187.0" mnemonicParsing="false" onAction="#getPassword" prefHeight="26.0" prefWidth="17.0" text="***" />
+      <Label fx:id="passwordGetLabel" layoutX="205.0" layoutY="213.0" prefHeight="26.0" prefWidth="136.0" />
    </children>
 </AnchorPane>

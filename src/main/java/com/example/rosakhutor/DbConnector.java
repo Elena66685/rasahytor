@@ -16,7 +16,7 @@ public class DbConnector {
     public ResultSet getEmployeeLoginPasword(String login, String password) throws SQLException, ClassNotFoundException {
         PreparedStatement stmt = null;
         Connection connection = DbConnector.getDbConnect();
-        stmt = connection.prepareStatement("SELECT login, password, role_id, images FROM employee WHERE login = '"+login+"' AND password = '"+password+"';");
+        stmt = connection.prepareStatement("SELECT employee.login, employee.password, role.name, employee.images, employee.name FROM employee, role WHERE login = '"+login+"' AND password = '"+password+"' AND employee.role_id = role.id;");
 
         ResultSet resultSet = stmt.executeQuery();
         return resultSet;

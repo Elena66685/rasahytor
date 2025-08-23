@@ -5,6 +5,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
@@ -24,6 +25,12 @@ public class SellerController {
     @FXML
     public Button order;
 
+    @FXML
+    public Label name;
+
+    @FXML
+    public Label role;
+
     public void initialize() { // Метод автоматически вызывается после загрузки FXML
         System.out.println("Контроллер загружен");
 
@@ -38,10 +45,9 @@ public class SellerController {
         stage.show();
     }
 
-    public void OpenEmployeeWindow(int role, String images) throws IOException {
+    public void OpenEmployeeWindow(String role, String images, String names, Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("seller.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
-        stage = new Stage();
         stage.setScene(scene);
         stage.show();
         try {
@@ -54,20 +60,20 @@ public class SellerController {
             ex.printStackTrace();
         }
 
+        Label name = (Label) scene.lookup("#name");
+        name.setText(names);
 
-        Platform.runLater(() -> configureUL(role));
-    }
+        Label roles = (Label) scene.lookup("#role");
+        roles.setText(role);
 
-    public void configureUL(int role)
-    {
         var back = stage.getScene().lookup("#back");
         var order = stage.getScene().lookup("#order");
 
-        if (role == 3)
+        if (role.equals("Старший смены"))
         {
             back.setVisible(false);
         }
-        if (role == 1)
+        if (role.equals("Продавец"))
         {
             back.setVisible(false);
             order.setDisable(true);
@@ -75,10 +81,7 @@ public class SellerController {
 
     }
 
-    public String getImages(String images)
-    {
-        return images;
-    }
+
 
 
 }
