@@ -2,19 +2,19 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.rosakhutor.SellerController">
    <children>
-      <TextField layoutX="425.0" layoutY="269.0" prefHeight="26.0" prefWidth="87.0" text="Продавец" />
-      <TextField layoutX="244.0" layoutY="102.0" prefHeight="26.0" prefWidth="327.0" promptText="ФИО" />
-      <TextField layoutX="394.0" layoutY="158.0" promptText="фото" />
-      <Button fx:id="order" layoutX="380.0" layoutY="215.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="142.0" text="Сформировать заказ" />
+      <Button fx:id="order" layoutX="246.0" layoutY="125.0" mnemonicParsing="false" onAction="#OpenOrderWindow" prefHeight="26.0" prefWidth="142.0" text="Сформировать заказ" />
       <Button fx:id="back" layoutX="35.0" layoutY="352.0" mnemonicParsing="false" onAction="#OpenHelloWindow" text="Назад" />
       <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" />
       <Label fx:id="name" layoutX="222.0" layoutY="14.0" prefHeight="18.0" prefWidth="346.0" />
       <Label fx:id="role" layoutX="222.0" layoutY="42.0" prefHeight="18.0" prefWidth="150.0" />
+      <Button fx:id="report" layoutX="246.0" layoutY="175.0" mnemonicParsing="false" onAction="#OpenReportWindow" text="Сформировать отчет" />
+      <Button fx:id="materials" layoutX="430.0" layoutY="175.0" mnemonicParsing="false" onAction="#OpenMaterialsWindow" text="Расходные материалы" />
+      <Button fx:id="loginHistory" layoutX="246.0" layoutY="229.0" mnemonicParsing="false" onAction="#OpenLoginHistoryWindow" text="История входа" />
+      <Button fx:id="product" layoutX="430.0" layoutY="126.0" mnemonicParsing="false" onAction="#OpenProductWindow" text="Принять товар" />
    </children>
 </AnchorPane>

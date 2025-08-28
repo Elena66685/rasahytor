@@ -31,6 +31,18 @@ public class SellerController {
     @FXML
     public Label role;
 
+    @FXML
+    public Button report;
+
+    @FXML
+    public Button materials;
+
+    @FXML
+    public Button loginHistory;
+
+    @FXML
+    public Button product;
+
     public void initialize() { // Метод автоматически вызывается после загрузки FXML
         System.out.println("Контроллер загружен");
 
@@ -40,7 +52,52 @@ public class SellerController {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
         Stage stage = (Stage)back.getScene().getWindow();
-        stage.setTitle("СОТРУДНИК_ВЕЩЬ");
+        stage.setTitle("ДОБРО ПОЖАЛОВАТЬ!");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public void OpenReportWindow() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("report.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        Stage stage = (Stage)report.getScene().getWindow();
+        stage.setTitle("СФОРМИРОВАТЬ ОТЧЁТ");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public void OpenOrderWindow() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("order.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        Stage stage = (Stage)order.getScene().getWindow();
+        stage.setTitle("СФОРМИРОВАТЬ ЗАКАЗ");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public void OpenProductWindow() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("product.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        Stage stage = (Stage)product.getScene().getWindow();
+        stage.setTitle("ПРИНЯТЬ ТОВАР");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public void OpenMaterialsWindow() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("materials.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        Stage stage = (Stage)materials.getScene().getWindow();
+        stage.setTitle("РАСХОДНЫЕ МАТЕРИАЛЫ");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public void OpenLoginHistoryWindow() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("loginHistory.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        Stage stage = (Stage)loginHistory.getScene().getWindow();
+        stage.setTitle("ИСТОРИЯ ВХОДА");
         stage.setScene(scene);
         stage.show();
     }
@@ -68,15 +125,24 @@ public class SellerController {
 
         var back = stage.getScene().lookup("#back");
         var order = stage.getScene().lookup("#order");
+        var report = stage.getScene().lookup("#report");
+        var materials = stage.getScene().lookup("#materials");
+        var loginHistory = stage.getScene().lookup("#loginHistory");
+        var product = stage.getScene().lookup("#product");
 
         if (role.equals("Старший смены"))
         {
-            back.setVisible(false);
+            report.setVisible(false);
+            materials.setVisible(false);
+            loginHistory.setVisible(false);
         }
         if (role.equals("Продавец"))
         {
-            back.setVisible(false);
-            order.setDisable(true);
+            //order.setDisable(true);
+            report.setVisible(false);
+            materials.setVisible(false);
+            loginHistory.setVisible(false);
+            product.setVisible(false); 
         }
 
     }
