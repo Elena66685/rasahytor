@@ -8,17 +8,16 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import static com.example.rosakhutor.GlobalVars.*;
+
 public class ProductController {
+
+    SellerController sellerController = new SellerController();
 
     @FXML
     private Button back;
 
     public void OpenSellerWindow() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("seller.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
-        Stage stage = (Stage)back.getScene().getWindow();
-        stage.setTitle("RosaKhutor");
-        stage.setScene(scene);
-        stage.show();
+        sellerController.OpenEmployeeWindow(Role, Images, Name, (Stage) back.getScene().getWindow());
     }
 }

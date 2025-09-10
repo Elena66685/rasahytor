@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import javax.management.relation.Role;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,13 +46,13 @@ public class HelloController {
             ResultSet resultSet = dbConnector.getEmployeeLoginPasword(login.getText(), pasword.getText());
             if (resultSet.next())
             {
-                String role = resultSet.getString(3);
-                System.out.println(role);
-                String images = resultSet.getString(4);
-                System.out.println(images);
-                String name = resultSet.getString(5);
-                System.out.println(name);
-                sellerController.OpenEmployeeWindow(role, images, name, (Stage) label.getScene().getWindow());
+                GlobalVars.Role = resultSet.getString(3);
+                System.out.println(GlobalVars.Role);
+                GlobalVars.Images = resultSet.getString(4);
+                System.out.println(GlobalVars.Images);
+                GlobalVars.Name = resultSet.getString(5);
+                System.out.println(GlobalVars.Name);
+                sellerController.OpenEmployeeWindow(GlobalVars.Role, GlobalVars.Images, GlobalVars.Name, (Stage) label.getScene().getWindow());
             }
 
             else
@@ -65,6 +66,9 @@ public class HelloController {
     public void getPassword()
     {
         passwordGetLabel.setText(pasword.getText());
+        if(pasword.equals("")){
+            passwordGetLabel = null;
+        }
     }
 
 

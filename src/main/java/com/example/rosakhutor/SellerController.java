@@ -1,5 +1,6 @@
 package com.example.rosakhutor;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,6 +19,21 @@ public class SellerController {
 
     @FXML
     public  ImageView imageView;
+
+    @FXML
+    public Label timerLabel;
+
+    public Long startTimeNano;
+
+    /*public AnimationTimer animationTimer = new AnimationTimer() {
+        @Override
+        public void handle(long now) {
+            double elapsedSeconds = (now-startTimeNano) / 1_000_000_000.0;
+            //Label timerLabel = (Label) scene.lookup("#timerLabel");
+            timerLabel.setText(String.format("Время сессии:%.2f сек.", elapsedSeconds));
+
+        }
+    };*/
 
     @FXML
     public Button back;
@@ -50,62 +66,64 @@ public class SellerController {
 
     public void OpenHelloWindow() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
+        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
         Stage stage = (Stage)back.getScene().getWindow();
-        stage.setTitle("ДОБРО ПОЖАЛОВАТЬ!");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
 
     public void OpenReportWindow() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("report.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
+        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
         Stage stage = (Stage)report.getScene().getWindow();
-        stage.setTitle("СФОРМИРОВАТЬ ОТЧЁТ");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
 
     public void OpenOrderWindow() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("order.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
+        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
         Stage stage = (Stage)order.getScene().getWindow();
-        stage.setTitle("СФОРМИРОВАТЬ ЗАКАЗ");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
 
     public void OpenProductWindow() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("product.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
+        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
         Stage stage = (Stage)product.getScene().getWindow();
-        stage.setTitle("ПРИНЯТЬ ТОВАР");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
 
     public void OpenMaterialsWindow() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("materials.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
+        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
         Stage stage = (Stage)materials.getScene().getWindow();
-        stage.setTitle("РАСХОДНЫЕ МАТЕРИАЛЫ");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
 
     public void OpenLoginHistoryWindow() throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("loginHistory.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
+        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
         Stage stage = (Stage)loginHistory.getScene().getWindow();
-        stage.setTitle("ИСТОРИЯ ВХОДА");
+        stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
     }
 
     public void OpenEmployeeWindow(String role, String images, String names, Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("seller.fxml"));
-        Scene scene = new Scene(fxmlLoader.load());
+        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+        stage.setResizable(false);
         stage.setScene(scene);
+        //stage.setOnCloseRequest(event->save   );
         stage.show();
         try {
             // Загрузка изображения из ресурса
@@ -116,6 +134,8 @@ public class SellerController {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+
 
         Label name = (Label) scene.lookup("#name");
         name.setText(names);
@@ -144,6 +164,8 @@ public class SellerController {
             loginHistory.setVisible(false);
             product.setVisible(false); 
         }
+
+
 
     }
 
