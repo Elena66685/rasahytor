@@ -21,7 +21,7 @@ public class Login {
         return id;
     }
 
-    public LocalDateTime getTime() {
+    public LocalDateTime getDayTime() {
         return dayTime;
     }
 
@@ -33,7 +33,7 @@ public class Login {
         this.id = id;
     }
 
-    public void setTime(LocalDateTime dayTime) {
+    public void setDayTime(LocalDateTime dayTime) {
         this.dayTime = dayTime;
     }
 

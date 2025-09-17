@@ -8,11 +8,11 @@
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.rosakhutor.LoginHistoryController">
    <children>
       <Button fx:id="back" layoutX="35.0" layoutY="343.0" mnemonicParsing="false" onAction="#OpenSellerWindow" text="Назад" />
-      <TableView fx:id="tableLogin" layoutX="35.0" layoutY="45.0" prefHeight="200.0" prefWidth="385.0">
+      <TableView fx:id="tableLogin" layoutX="35.0" layoutY="45.0" prefHeight="200.0" prefWidth="434.0">
         <columns>
-          <TableColumn fx:id="id" prefWidth="113.59997940063477" text="ID" />
-          <TableColumn fx:id="time" prefWidth="135.99998474121094" text="Время входа" />
-            <TableColumn fx:id="login" prefWidth="135.20001220703125" text="Логин пользователя" />
+          <TableColumn fx:id="id" prefWidth="90.4000244140625" text="ID" />
+          <TableColumn fx:id="dayTime" prefWidth="159.20001220703125" text="Время входа" />
+            <TableColumn fx:id="login" prefWidth="180.79998779296875" text="Логин пользователя" />
         </columns>
       </TableView>
    </children>

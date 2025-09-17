@@ -45,7 +45,7 @@ public class LoginHistoryController {
     private TableColumn<Login, String> login;
 
     @FXML
-    private TableColumn<Login, LocalDateTime> time;
+    private TableColumn<Login, LocalDateTime> dayTime;
 
     @FXML
     void initialize() throws SQLException, ClassNotFoundException {
@@ -65,7 +65,8 @@ public class LoginHistoryController {
         System.out.println(lists);
         id.setCellValueFactory(new PropertyValueFactory<Login, Integer>("id"));
         login.setCellValueFactory(new PropertyValueFactory<Login, String>("login"));
-        time.setCellValueFactory(cellData -> {
+        dayTime.setCellValueFactory(new PropertyValueFactory<Login, LocalDateTime>("dayTime"));
+        /*dayTime.setCellValueFactory(cellData -> {
             LocalDateTime dt = cellData.getValue().getTime(); // Получаем значение
             return new SimpleStringProperty(dt.toString());
             /*if (dt != null) {
@@ -73,7 +74,7 @@ public class LoginHistoryController {
             } else {
                 return new SimpleStringProperty("");
             }*/
-        });
+       // });
 
 
         tableLogin.setItems(lists);
