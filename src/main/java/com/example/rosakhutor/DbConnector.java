@@ -31,4 +31,14 @@ public class DbConnector {
             System.out.println(resultSet.getInt (6));
          }*/
     }
+
+    public ResultSet getLoginHistory() throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = null;
+        Connection connection = DbConnector.getDbConnect();
+        stmt = connection.prepareStatement("SELECT employee.id, employee.login, employee.last_entry FROM employee;");
+
+
+        ResultSet resultSet = stmt.executeQuery();
+        return resultSet;
+    }
 }
