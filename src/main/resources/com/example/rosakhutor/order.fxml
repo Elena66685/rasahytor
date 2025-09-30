@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.rosakhutor.OrderController">
    <children>
       <Button fx:id="back" layoutX="33.0" layoutY="343.0" mnemonicParsing="false" onAction="#OpenSellerWindow" text="Назад" />
+      <Button fx:id="barcode" layoutX="315.0" layoutY="343.0" mnemonicParsing="false" onAction="#Barcode" prefHeight="26.0" prefWidth="159.0" text="Штрих код" />
+      <TextField fx:id="orderNumber" layoutX="45.0" layoutY="63.0" />
    </children>
 </AnchorPane>

@@ -1,6 +1,7 @@
 package com.example.rosakhutor;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 
 public class DbConnector {
      public static Connection dbConnect;
@@ -40,5 +41,31 @@ public class DbConnector {
 
         ResultSet resultSet = stmt.executeQuery();
         return resultSet;
+    }
+
+    public ResultSet getOrderId() throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = null;
+        Connection connection = DbConnector.getDbConnect();
+        stmt = connection.prepareStatement("SELECT MAX(id) AS max FROM orders;");
+
+
+        ResultSet resultSet = stmt.executeQuery();
+        return resultSet;
+    }
+
+    public ResultSet getOrderCode() throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = null;
+        Connection connection = DbConnector.getDbConnect();
+        stmt = connection.prepareStatement("SELECT MAX(code) AS cod FROM orders;");
+
+
+        ResultSet resultSet = stmt.executeQuery();
+        return resultSet;
+    }
+
+    public void singUpOrders(Integer id, String code, String date, LocalDateTime time,  Integer clients_id, Integer status_id, String data, Integer times) throws SQLException {
+
+        PreparedStatement pstmt = dbConnect.prepareStatement("INSERT INTO orders (id, code, date_of_creation, time, clients_id, status_id, closing_date, rental_time) values ("+id+", '"+code+"', '"+date+"', '"+time+"', "+clients_id+", "+status_id+", '"+data+"', "+times+");");
+        pstmt.executeUpdate();
     }
 }

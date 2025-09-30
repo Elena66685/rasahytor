@@ -12,10 +12,13 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 public class SellerController {
 
     static Stage stage;
+
+    //OrderController orderController = new OrderController();
 
     @FXML
     public  ImageView imageView;
@@ -82,13 +85,14 @@ public class SellerController {
         stage.show();
     }
 
-    public void OpenOrderWindow() throws IOException {
+    public void OpenOrderWindow() throws IOException, SQLException, ClassNotFoundException {
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("order.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 600, 400);
         Stage stage = (Stage)order.getScene().getWindow();
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
+        //orderController.OrderNumber();
     }
 
     public void OpenProductWindow() throws IOException {
