@@ -1,7 +1,6 @@
 package com.example.rosakhutor;
 
 import java.sql.*;
-import java.time.LocalDateTime;
 
 public class DbConnector {
      public static Connection dbConnect;
@@ -63,9 +62,11 @@ public class DbConnector {
         return resultSet;
     }
 
-    public void singUpOrders(Integer id, String code, String date, LocalDateTime time,  Integer clients_id, Integer status_id, String data, Integer times) throws SQLException {
+    public void singUpOrders(String code, Timestamp time,
+                             Integer clients_id, Integer status_id, String data, Integer times) throws SQLException {
 
-        PreparedStatement pstmt = dbConnect.prepareStatement("INSERT INTO orders (id, code, date_of_creation, time, clients_id, status_id, closing_date, rental_time) values ("+id+", '"+code+"', '"+date+"', '"+time+"', "+clients_id+", "+status_id+", '"+data+"', "+times+");");
+        PreparedStatement pstmt = dbConnect.prepareStatement("INSERT INTO orders (code, time," +
+                " clients_id, status_id, closing_date, rental_time) values ('"+code+"', '"+time+"', "+clients_id+", "+status_id+", '"+data+"', "+times+");");
         pstmt.executeUpdate();
     }
 }

@@ -14,10 +14,13 @@ import javafx.scene.control.TextField;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Random;
 
 import static com.example.rosakhutor.GlobalVars.*;
 
@@ -28,7 +31,6 @@ public class OrderController {
     DbConnector dbConnector = new DbConnector();
     int last_id;
     String code;
-    String formattedDate;
 
     @FXML
     public Button back;
@@ -51,13 +53,21 @@ public class OrderController {
     }
 
     public void OrderNumber() throws SQLException, ClassNotFoundException {
-        ResultSet resultSet = dbConnector.getOrderId();
+        /*ResultSet resultSet = dbConnector.getOrderId();
         System.out.println(resultSet);
         if(resultSet.next()){
             last_id = resultSet.getInt("max");
             last_id = last_id + 1;
             System.out.println(last_id);
             orderNumber.setText(String.valueOf(last_id));
+        }*/
+        ResultSet resultSet = dbConnector.getOrderCode();
+        System.out.println(resultSet);
+        if(resultSet.next()) {
+            int code_int = Integer.parseInt(resultSet.getString("cod")) + 1;
+            code = String.valueOf(code_int);
+            System.out.println(code);
+            orderNumber.setText(code);
         }
     }
 
@@ -68,24 +78,38 @@ public class OrderController {
             int code_int = Integer.parseInt(resultSet.getString("cod")) + 1;
             code = String.valueOf(code_int);
             System.out.println(code);
+
         }
         // Получаем текущий момент времени
         LocalDateTime now = LocalDateTime.now();
+        Timestamp ts = Timestamp.valueOf(now);
+        System.out.println(ts.toString());
+        String result = ts.toString().substring(0, 19);
+        System.out.println(result);
+        String dataTime = result.replaceAll("[^\\d]", "");
+        System.out.println(dataTime);
+        Random random = new Random();
+        int minValue = 100000;
+        int maxValue = 999999;
+        int randomNumber = random.nextInt(maxValue - minValue + 1) + minValue;
+        String randomStr = String.valueOf(randomNumber);
+        System.out.println(randomStr);
+        String barcode = code + dataTime + randomStr;
+        System.out.println(barcode);
 
         // Извлекаем только дату
-        LocalDate dateOnly = now.toLocalDate();
+        //LocalDate dateOnly = now.toLocalDate();
 
         // Формируем форматированный вывод
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        formattedDate = dateOnly.format(formatter);
+        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        //String formattedDate = dateOnly.format(formatter);
 
-        System.out.println("Только сегодняшняя дата: " + formattedDate);
+        //System.out.println("Только сегодняшняя дата: " + formattedDate);
 
-        LocalTime time = now.toLocalTime();
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        String formattedTime = time.format(timeFormatter);
-        System.out.println(formattedTime);
-        dbConnector.singUpOrders(last_id, code, formattedDate, LocalDateTime.from(time), 45462562, 2, "04.04.2022", 600);
+        //Time time = new Time(System.currentTimeMillis());
+
+        //dbConnector.singUpOrders(code, ts, 45462562, 2, "04.04.2022", 600);
 
     }
 }
+
