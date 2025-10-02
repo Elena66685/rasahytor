@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -41,9 +42,16 @@ public class OrderController {
     @FXML
     private TextField orderNumber;
 
+    @FXML
+    private Slider slider;
+
+    @FXML
+    private TextField slidertext;
+
     public void initialize() throws SQLException, ClassNotFoundException { // Метод автоматически вызывается после загрузки FXML
         System.out.println("Контроллер загружен");
         OrderNumber();
+        slidertext.textProperty().bind(slider.valueProperty().asString("%.0f"));
 
     }
 
