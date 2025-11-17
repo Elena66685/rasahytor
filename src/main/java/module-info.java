@@ -4,6 +4,8 @@ module com.example.rosakhutor {
     requires java.sql;
     requires java.desktop;
     requires java.management;
+    requires com.google.zxing;
+    requires com.google.zxing.javase;
 
 
     opens com.example.rosakhutor to javafx.fxml;

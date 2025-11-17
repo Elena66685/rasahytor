@@ -1,18 +1,37 @@
 package com.example.rosakhutor;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageConfig;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.oned.Code128Writer;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.stage.Stage;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.*;
 
+import javax.imageio.ImageIO;
 import javax.management.relation.Role;
 import javafx.scene.control.TextField;
+import javafx.stage.Window;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
@@ -24,6 +43,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 import static com.example.rosakhutor.GlobalVars.*;
+import static java.nio.file.Files.readAllBytes;
 
 
 public class OrderController {
@@ -32,6 +52,7 @@ public class OrderController {
     DbConnector dbConnector = new DbConnector();
     int last_id;
     String code;
+    private final Stage primaryStage = new Stage();
 
     @FXML
     public Button back;
@@ -47,6 +68,12 @@ public class OrderController {
 
     @FXML
     private TextField slidertext;
+
+    @FXML
+    private Button all_clients;
+
+    @FXML
+    private Button ad_a_client;
 
     public void initialize() throws SQLException, ClassNotFoundException { // Метод автоматически вызывается после загрузки FXML
         System.out.println("Контроллер загружен");
@@ -82,7 +109,7 @@ public class OrderController {
     public void Barcode() throws SQLException, ClassNotFoundException {
         ResultSet resultSet = dbConnector.getOrderCode();
         System.out.println(resultSet);
-        if(resultSet.next()) {
+        if (resultSet.next()) {
             int code_int = Integer.parseInt(resultSet.getString("cod")) + 1;
             code = String.valueOf(code_int);
             System.out.println(code);
@@ -104,7 +131,6 @@ public class OrderController {
         System.out.println(randomStr);
         String barcode = code + dataTime + randomStr;
         System.out.println(barcode);
-
         // Извлекаем только дату
         //LocalDate dateOnly = now.toLocalDate();
 
@@ -118,6 +144,245 @@ public class OrderController {
 
         //dbConnector.singUpOrders(code, ts, 45462562, 2, "04.04.2022", 600);
 
+        try {
+            // Шаг 1: Получаем директорию для сохранения
+            File selectedDirectory = selectSaveDirectory(primaryStage);
+            if (selectedDirectory == null) {
+                showError("Директория не выбрана");
+                //return null;
+            }
+
+            // Шаг 2: Проверяем права записи
+            if (!checkWritePermissions(selectedDirectory)) {
+                showError("Нет прав записи в выбранную директорию: " + selectedDirectory.getAbsolutePath());
+                //return null;
+            }
+
+            // Шаг 3: Подготавливаем данные для штрих-кода (убираем пробелы)
+            String barcodeData = barcode.replace(" ", "");
+            System.out.println("Создаем штрих-код для данных: " + barcode);
+
+            // Шаг 4: Создаем штрих-код
+            Code128Writer barcodeWriter = new Code128Writer();
+            BitMatrix bitMatrix = barcodeWriter.encode(barcode, BarcodeFormat.CODE_128, 400, 150);
+
+            // Шаг 5: Создаем изображение с текстом
+            MatrixToImageConfig config = new MatrixToImageConfig(0xFF000000, 0xFFFFFFFF);
+            BufferedImage barcodeImage = MatrixToImageWriter.toBufferedImage(bitMatrix, config);
+            BufferedImage finalImage = addTextToBarcode(barcodeImage, barcode);
+
+            // Шаг 6: Генерируем уникальное имя файла
+            String fileName = "barcode_image.png";
+            Path filePath = Paths.get(selectedDirectory.getAbsolutePath(), fileName);
+
+            // Шаг 7: Сохраняем файл с использованием ImageIO (более надежно)
+            ImageIO.write(finalImage, "PNG", filePath.toFile());
+
+            String successMessage = "Штрих-код успешно сохранен!\n" +
+                    "Файл: " + filePath.toString() + "\n" +
+                    "Данные: " + barcode + "\n" +
+                    "Штрих-код: " + barcodeData;
+
+            showSuccess(successMessage);
+            //return filePath.toString();
+
+        } catch (IOException e) {
+            showError("Ошибка при сохранении файла: " + e.getMessage());
+            //return null;
+        } catch (Exception e) {
+            showError("Неожиданная ошибка: " + e.getMessage());
+            //return null;
+        }
     }
+
+    private static File selectSaveDirectory(Stage primaryStage) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Выберите папку для сохранения штрих-кода");
+
+        // Начинаем с безопасных директорий
+        File initialDir = new File(System.getProperty("user.home"));
+        directoryChooser.setInitialDirectory(initialDir);
+
+        return directoryChooser.showDialog(primaryStage);
+    }
+
+    private static boolean checkWritePermissions(File directory) {
+        if (!directory.exists() || !directory.isDirectory()) {
+            return false;
+        }
+
+        // Тестируем запись созданием временного файла
+        File testFile = new File(directory, "write_test_" + System.currentTimeMillis() + ".tmp");
+        try {
+            if (testFile.createNewFile()) {
+                testFile.delete();
+                return true;
+            }
+            return false;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private static BufferedImage addTextToBarcode(BufferedImage barcodeImage, String text) {
+        int textHeight = 40;
+        int totalHeight = barcodeImage.getHeight() + textHeight;
+
+        BufferedImage combinedImage = new BufferedImage(
+                barcodeImage.getWidth(),
+                totalHeight,
+                BufferedImage.TYPE_INT_RGB
+        );
+
+        Graphics2D g2d = combinedImage.createGraphics();
+
+        // Настраиваем качество рендеринга
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+        // Белый фон
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, combinedImage.getWidth(), combinedImage.getHeight());
+
+        // Штрих-код
+        g2d.drawImage(barcodeImage, 0, 0, null);
+
+        // Текст под штрих-кодом
+        g2d.setColor(Color.BLACK);
+        g2d.setFont(new Font("Arial", Font.BOLD, 14));
+
+        FontMetrics metrics = g2d.getFontMetrics();
+        int textWidth = metrics.stringWidth(text);
+        int x = (combinedImage.getWidth() - textWidth) / 2;
+        int y = barcodeImage.getHeight() + 25; // Отступ от штрих-кода
+
+        g2d.drawString(text, x, y);
+        g2d.dispose();
+
+        return combinedImage;
+    }
+
+    private static void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Ошибка");
+        alert.setHeaderText("Ошибка создания штрих-кода");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private static void showSuccess(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Успех");
+        alert.setHeaderText("Штрих-код создан");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    public void OpenAll_clients() throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("all-clients.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+        Stage stage = (Stage)all_clients.getScene().getWindow();
+        stage.setResizable(false);
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    /*public void Ad_clientOpenCustomModal(){
+        // Создаем новое окно
+        Stage modalStage = new Stage();
+        modalStage.setTitle("Введите данные");
+
+        // Устанавливаем модальность - блокируем родительское окно
+        modalStage.initModality(Modality.WINDOW_MODAL);
+        modalStage.initOwner(primaryStage);
+
+        // Создаем содержимое
+        Button closeButton = new Button("Закрыть");
+        closeButton.setOnAction(e -> modalStage.close());
+
+        TextField textField = new TextField();
+        Button okButton = new Button("OK");
+        Button cancelButton = new Button("Отмена");
+
+        VBox layout = new VBox(10);
+        layout.getChildren().addAll(closeButton);
+
+        Scene scene = new Scene(layout, 600, 400);
+        modalStage.setScene(scene);
+
+        // Показываем окно и ждем его закрытия
+        modalStage.showAndWait();
+    }*/
+    public void ShowInputDialog() {
+        Stage dialog = new Stage();
+        dialog.setTitle("Ввод данных");
+        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.initOwner(primaryStage);
+
+        TextField textName = new TextField();
+        TextField textDate_of_birth = new TextField();
+        TextField textAddress = new TextField();
+        TextField textE_mail = new TextField();
+        TextField textTelephone = new TextField();
+
+        Button okButton = new Button("ДОБАВИТЬ");
+        okButton.setOnAction(e -> {
+            //Проверка на пустоту
+            if (textName.getText().isEmpty()) {
+                Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                infoAlert.setTitle("Внимание");
+                infoAlert.setHeaderText("Пустое поле");
+                infoAlert.setContentText("Поле 'Имя' не может быть пустым");
+                infoAlert.showAndWait();
+                System.out.println("Поле имени пустое");
+            } else {
+                String name = textName.getText();
+                // Обработка данных
+                System.out.println("Добавлен клиент: " + name);
+            }
+
+           // dialog.close();
+        });
+        /*Button cancelButton = new Button("Отмена");
+
+        final String[] result = new String[1];
+
+        okButton.setOnAction(e -> {
+            result[0] = textField.getText();
+            dialog.close();
+        });
+
+        cancelButton.setOnAction(e -> {
+            result[0] = null;
+            dialog.close();
+        });*/
+
+        VBox layout = new VBox(10);
+        layout.getChildren().addAll(
+                new Label("Введите Имя:"),
+                textName,
+                new Label("ВВедите дату рождения:"),
+                textDate_of_birth,
+                new Label("ВВедите адрес:"),
+                textAddress,
+                new Label("Введите E-Mail:"),
+                textE_mail,
+                new Label("Введите телефон:"),
+                textTelephone,
+                okButton,
+                new HBox(10)
+        );
+
+        Scene scene = new Scene(layout, 600, 400);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+
+    }
+
 }
+
+
+
+
+
 

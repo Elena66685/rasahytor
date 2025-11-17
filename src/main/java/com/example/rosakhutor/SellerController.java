@@ -92,7 +92,6 @@ public class SellerController {
         stage.setResizable(false);
         stage.setScene(scene);
         stage.show();
-        //orderController.OrderNumber();
     }
 
     public void OpenProductWindow() throws IOException {

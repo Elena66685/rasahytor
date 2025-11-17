@@ -69,4 +69,11 @@ public class DbConnector {
                 " clients_id, status_id, closing_date, rental_time) values ('"+code+"', '"+time+"', "+clients_id+", "+status_id+", '"+data+"', "+times+");");
         pstmt.executeUpdate();
     }
+
+    public void singUpClients(String name, String date_of_birth, String address, String e_mail, String telephone) throws SQLException {
+
+        PreparedStatement pstmt = dbConnect.prepareStatement("INSERT INTO clients (name, date_of_birth," +
+                " address, e_mail, telephone) values ('"+name+"', '"+date_of_birth+"', '"+address+"', '"+e_mail+"', '"+telephone+"');");
+        pstmt.executeUpdate();
+    }
 }
