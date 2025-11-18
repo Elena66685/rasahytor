@@ -76,4 +76,14 @@ public class DbConnector {
                 " address, e_mail, telephone) values ('"+name+"', '"+date_of_birth+"', '"+address+"', '"+e_mail+"', '"+telephone+"');");
         pstmt.executeUpdate();
     }
+
+    public ResultSet getClientsId(String name, String date_of_birth, String address, String e_mail, String telephone) throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = null;
+        Connection connection = DbConnector.getDbConnect();
+        stmt = connection.prepareStatement("SELECT clients.id FROM clients WHERE name = '" + name + "' AND date_of_birth = '" + date_of_birth + "'" +
+                "AND address = '" + address + "' AND e_mail = '" + e_mail + "' AND telephone = '" + telephone + "';");
+
+        ResultSet resultSet = stmt.executeQuery();
+        return resultSet;
+    }
 }

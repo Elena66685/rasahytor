@@ -53,6 +53,7 @@ public class OrderController {
     int last_id;
     String code;
     private final Stage primaryStage = new Stage();
+    int id_client;
 
     @FXML
     public Button back;
@@ -278,14 +279,6 @@ public class OrderController {
         alert.showAndWait();
     }
 
-    public void OpenAll_clients() throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("all-clients.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 600, 400);
-        Stage stage = (Stage)all_clients.getScene().getWindow();
-        stage.setResizable(false);
-        stage.setScene(scene);
-        stage.show();
-    }
 
     /*public void Ad_clientOpenCustomModal(){
         // Создаем новое окно
@@ -313,20 +306,26 @@ public class OrderController {
         // Показываем окно и ждем его закрытия
         modalStage.showAndWait();
     }*/
-    public void ShowInputDialog() {
+   /* public void ShowInputDialog() {
         Stage dialog = new Stage();
         dialog.setTitle("Ввод данных");
-        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(primaryStage);
 
         TextField textName = new TextField();
-        TextField textDate_of_birth = new TextField();
+        TextField textDate_of_birth = new TextField();//data picker
         TextField textAddress = new TextField();
         TextField textE_mail = new TextField();
         TextField textTelephone = new TextField();
 
         Button okButton = new Button("ДОБАВИТЬ");
+        Button cancelButton = new Button("ЗАКРЫТЬ");
         okButton.setOnAction(e -> {
+            String name = "";
+            String date_of_birth = "";
+            String address = "";
+            String e_mail = "";
+            String telephone = "";
             //Проверка на пустоту
             if (textName.getText().isEmpty()) {
                 Alert infoAlert = new Alert(Alert.AlertType.WARNING);
@@ -336,12 +335,77 @@ public class OrderController {
                 infoAlert.showAndWait();
                 System.out.println("Поле имени пустое");
             } else {
-                String name = textName.getText();
+                name = textName.getText();
                 // Обработка данных
                 System.out.println("Добавлен клиент: " + name);
             }
+            if (textDate_of_birth.getText().isEmpty()) {
+                Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                infoAlert.setTitle("Внимание");
+                infoAlert.setHeaderText("Пустое поле");
+                infoAlert.setContentText("Поле 'Дата рождения' не может быть пустым");
+                infoAlert.showAndWait();
+                System.out.println("Поле даты рождения пустое");
+            } else {
+                date_of_birth = textDate_of_birth.getText();
+            }
+            if (textAddress.getText().isEmpty()) {
+                Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                infoAlert.setTitle("Внимание");
+                infoAlert.setHeaderText("Пустое поле");
+                infoAlert.setContentText("Поле 'Адрес' не может быть пустым");
+                infoAlert.showAndWait();
+                System.out.println("Поле адреса пустое");
+            } else {
+                address = textAddress.getText();
+            }
+            if (textE_mail.getText().isEmpty()) {
+                Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                infoAlert.setTitle("Внимание");
+                infoAlert.setHeaderText("Пустое поле");
+                infoAlert.setContentText("Поле 'E_mail' не может быть пустым");
+                infoAlert.showAndWait();
+                System.out.println("Поле E_mail пустое");
+            } else {
+                e_mail = textE_mail.getText();
+            }
+            if (textTelephone.getText().isEmpty()) {
+                Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                infoAlert.setTitle("Внимание");
+                infoAlert.setHeaderText("Пустое поле");
+                infoAlert.setContentText("Поле 'Телефон' не может быть пустым");
+                infoAlert.showAndWait();
+                System.out.println("Поле телефон пустое");
+            } else {
+                telephone = textTelephone.getText();
+            }
+            try {
+                dbConnector.singUpClients(name, date_of_birth, address, e_mail, telephone);
+                Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+                infoAlert.setTitle("Успех");
+                infoAlert.setHeaderText("Операция завершена");
+                infoAlert.setContentText("Клиент успешно добавлен");
+                infoAlert.showAndWait();
+                System.out.println("Внесен новый клиент в базу данных");
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
 
-           // dialog.close();
+            try {
+                ResultSet resultSet = dbConnector.getClientsId(name, date_of_birth, address, e_mail, telephone);
+                if (resultSet.next()) {
+                    id_client = resultSet.getInt("id");
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
+
+        });
+
+        cancelButton.setOnAction(e -> {
+            dialog.close();
         });
         /*Button cancelButton = new Button("Отмена");
 
@@ -357,7 +421,7 @@ public class OrderController {
             dialog.close();
         });*/
 
-        VBox layout = new VBox(10);
+        /*VBox layout = new VBox(10);
         layout.getChildren().addAll(
                 new Label("Введите Имя:"),
                 textName,
@@ -370,6 +434,7 @@ public class OrderController {
                 new Label("Введите телефон:"),
                 textTelephone,
                 okButton,
+                cancelButton,
                 new HBox(10)
         );
 
@@ -377,6 +442,174 @@ public class OrderController {
         dialog.setScene(scene);
         dialog.showAndWait();
 
+    }*/
+
+    public void ClientsShowInputDialog() {
+        Stage dialog = new Stage();
+        dialog.setTitle("Ввод данных");
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(primaryStage);
+
+        Button addButton = new Button("ДОБАВИТЬ КЛИЕНТА");
+        Button allCancelButton = new Button("ЗАКРЫТЬ");
+        allCancelButton.setOnAction(e -> {
+            dialog.close();
+        });
+
+        addButton.setOnAction(e -> {
+            Stage dialogs = new Stage();
+            dialogs.setTitle("Ввод данных");
+            dialogs.initModality(Modality.APPLICATION_MODAL);
+            dialogs.initOwner(primaryStage);
+
+            TextField textName = new TextField();
+            TextField textDate_of_birth = new TextField();//data picker
+            TextField textAddress = new TextField();
+            TextField textE_mail = new TextField();
+            TextField textTelephone = new TextField();
+
+            Button okButton = new Button("ДОБАВИТЬ");
+            Button cancelButton = new Button("ЗАКРЫТЬ");
+            okButton.setOnAction(d -> {
+                String name = "";
+                String date_of_birth = "";
+                String address = "";
+                String e_mail = "";
+                String telephone = "";
+                //Проверка на пустоту
+                if (textName.getText().isEmpty()) {
+                    Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                    infoAlert.setTitle("Внимание");
+                    infoAlert.setHeaderText("Пустое поле");
+                    infoAlert.setContentText("Поле 'Имя' не может быть пустым");
+                    infoAlert.showAndWait();
+                    System.out.println("Поле имени пустое");
+                } else {
+                    name = textName.getText();
+                    // Обработка данных
+                    System.out.println("Добавлен клиент: " + name);
+                }
+                if (textDate_of_birth.getText().isEmpty()) {
+                    Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                    infoAlert.setTitle("Внимание");
+                    infoAlert.setHeaderText("Пустое поле");
+                    infoAlert.setContentText("Поле 'Дата рождения' не может быть пустым");
+                    infoAlert.showAndWait();
+                    System.out.println("Поле даты рождения пустое");
+                } else {
+                    date_of_birth = textDate_of_birth.getText();
+                }
+                if (textAddress.getText().isEmpty()) {
+                    Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                    infoAlert.setTitle("Внимание");
+                    infoAlert.setHeaderText("Пустое поле");
+                    infoAlert.setContentText("Поле 'Адрес' не может быть пустым");
+                    infoAlert.showAndWait();
+                    System.out.println("Поле адреса пустое");
+                } else {
+                    address = textAddress.getText();
+                }
+                if (textE_mail.getText().isEmpty()) {
+                    Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                    infoAlert.setTitle("Внимание");
+                    infoAlert.setHeaderText("Пустое поле");
+                    infoAlert.setContentText("Поле 'E_mail' не может быть пустым");
+                    infoAlert.showAndWait();
+                    System.out.println("Поле E_mail пустое");
+                } else {
+                    e_mail = textE_mail.getText();
+                }
+                if (textTelephone.getText().isEmpty()) {
+                    Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                    infoAlert.setTitle("Внимание");
+                    infoAlert.setHeaderText("Пустое поле");
+                    infoAlert.setContentText("Поле 'Телефон' не может быть пустым");
+                    infoAlert.showAndWait();
+                    System.out.println("Поле телефон пустое");
+                } else {
+                    telephone = textTelephone.getText();
+                }
+                try {
+                    dbConnector.singUpClients(name, date_of_birth, address, e_mail, telephone);
+                    Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+                    infoAlert.setTitle("Успех");
+                    infoAlert.setHeaderText("Операция завершена");
+                    infoAlert.setContentText("Клиент успешно добавлен");
+                    infoAlert.showAndWait();
+                    System.out.println("Внесен новый клиент в базу данных");
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+                try {
+                    ResultSet resultSet = dbConnector.getClientsId(name, date_of_birth, address, e_mail, telephone);
+                    if (resultSet.next()) {
+                        id_client = resultSet.getInt("id");
+                    }
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                } catch (ClassNotFoundException ex) {
+                    throw new RuntimeException(ex);
+                }
+
+            });
+
+            cancelButton.setOnAction(h -> {
+                dialogs.close();
+            });
+        /*Button cancelButton = new Button("Отмена");
+
+        final String[] result = new String[1];
+
+        okButton.setOnAction(e -> {
+            result[0] = textField.getText();
+            dialog.close();
+        });
+
+        cancelButton.setOnAction(e -> {
+            result[0] = null;
+            dialog.close();
+        });*/
+
+            VBox layout = new VBox(10);
+            layout.getChildren().addAll(
+                    new Label("Введите Имя:"),
+                    textName,
+                    new Label("ВВедите дату рождения:"),
+                    textDate_of_birth,
+                    new Label("ВВедите адрес:"),
+                    textAddress,
+                    new Label("Введите E-Mail:"),
+                    textE_mail,
+                    new Label("Введите телефон:"),
+                    textTelephone,
+                    okButton,
+                    cancelButton,
+                    new HBox(10)
+            );
+
+            Scene scene = new Scene(layout, 450, 400);
+            dialogs.setScene(scene);
+            dialogs.showAndWait();
+
+        });
+
+
+        VBox layout = new VBox(10);
+        layout.getChildren().addAll(
+                addButton,
+                allCancelButton,
+                new HBox(10)
+        );
+
+        Scene scene = new Scene(layout, 500, 400);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+
+    }
+
+    public void Test(){
+        System.out.println(id_client);
     }
 
 }

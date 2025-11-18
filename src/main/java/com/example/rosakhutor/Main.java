@@ -24,23 +24,5 @@ public class Main extends Application {
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
 
          launch();
-        //Tables.createDBclients();
-        /*Connection conn = DbConnector.getDbConnect();
-        if (conn != null)
-        {
-            try
-            {
-                System.out.println("n***** Let terminate the Connection *****");
-                conn.close ();
-                System.out.println ("Database connection terminated... ");
-            }
-            catch (Exception ex)
-            {
-                System.out.println ("Error in connection termination!");
-            }
-        }*/
-        //DbConnector dbConnector = new DbConnector();
-        //dbConnector.getEmployeeLoginPasword();
-
     }
 }
