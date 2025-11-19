@@ -447,7 +447,7 @@ public class OrderController {
                 } else {
                     name = textName.getText();
                     // Обработка данных
-                    System.out.println("Добавлен клиент: " + name);
+                    //System.out.println("Добавлен клиент: " + name);
                 }
                 if (textDate_of_birth.getText().isEmpty()) {
                     Alert infoAlert = new Alert(Alert.AlertType.WARNING);
@@ -489,27 +489,53 @@ public class OrderController {
                 } else {
                     telephone = textTelephone.getText();
                 }
-                try {
-                    dbConnector.singUpClients(name, date_of_birth, address, e_mail, telephone);
-                    Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
-                    infoAlert.setTitle("Успех");
-                    infoAlert.setHeaderText("Операция завершена");
-                    infoAlert.setContentText("Клиент успешно добавлен");
-                    infoAlert.showAndWait();
-                    System.out.println("Внесен новый клиент в базу данных");
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
 
-                try {
-                    ResultSet resultSet = dbConnector.getClientsId(name, date_of_birth, address, e_mail, telephone);
-                    if (resultSet.next()) {
-                        id_client = resultSet.getInt("id");
+                if (!(name.equals("") || date_of_birth.equals("") || address.equals("") || e_mail.equals("") || telephone.equals(""))){
+                    try {
+                        ResultSet resultSet = dbConnector.getClientsId(name, date_of_birth, address, e_mail, telephone);
+                        if (resultSet.next()){
+                            Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                            infoAlert.setTitle("Внимание");
+                            infoAlert.setHeaderText("Запрос отклонен");
+                            infoAlert.setContentText("Клиент есть в базе");
+                            infoAlert.showAndWait();
+                            System.out.println("Клиент существует");
+                        }else {
+                            try {
+                                dbConnector.singUpClients(name, date_of_birth, address, e_mail, telephone);
+                                Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
+                                infoAlert.setTitle("Успех");
+                                infoAlert.setHeaderText("Операция завершена");
+                                infoAlert.setContentText("Клиент успешно добавлен");
+                                infoAlert.showAndWait();
+                                System.out.println("Внесен новый клиент в базу данных");
+                            } catch (SQLException ex) {
+                                throw new RuntimeException(ex);
+                            }
+
+                            try {
+                                ResultSet resultSet_2 = dbConnector.getClientsId(name, date_of_birth, address, e_mail, telephone);
+                                if (resultSet_2.next()) {
+                                    id_client = resultSet_2.getInt("id");
+                                }
+                            } catch (SQLException ex) {
+                                throw new RuntimeException(ex);
+                            } catch (ClassNotFoundException ex) {
+                                throw new RuntimeException(ex);
+                            }
+                        }
+                    } catch (SQLException ex) {
+                        throw new RuntimeException(ex);
+                    } catch (ClassNotFoundException ex) {
+                        throw new RuntimeException(ex);
                     }
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                } catch (ClassNotFoundException ex) {
-                    throw new RuntimeException(ex);
+                }else {
+                    Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                    infoAlert.setTitle("Внимание");
+                    infoAlert.setHeaderText("Пустое поле");
+                    infoAlert.setContentText("Поле не может быть пустым");
+                    infoAlert.showAndWait();
+                    System.out.println("Вы ввели не все данные");
                 }
 
             });
