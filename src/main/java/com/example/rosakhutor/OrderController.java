@@ -279,33 +279,6 @@ public class OrderController {
         alert.showAndWait();
     }
 
-
-    /*public void Ad_clientOpenCustomModal(){
-        // Создаем новое окно
-        Stage modalStage = new Stage();
-        modalStage.setTitle("Введите данные");
-
-        // Устанавливаем модальность - блокируем родительское окно
-        modalStage.initModality(Modality.WINDOW_MODAL);
-        modalStage.initOwner(primaryStage);
-
-        // Создаем содержимое
-        Button closeButton = new Button("Закрыть");
-        closeButton.setOnAction(e -> modalStage.close());
-
-        TextField textField = new TextField();
-        Button okButton = new Button("OK");
-        Button cancelButton = new Button("Отмена");
-
-        VBox layout = new VBox(10);
-        layout.getChildren().addAll(closeButton);
-
-        Scene scene = new Scene(layout, 600, 400);
-        modalStage.setScene(scene);
-
-        // Показываем окно и ждем его закрытия
-        modalStage.showAndWait();
-    }*/
    /* public void ShowInputDialog() {
         Stage dialog = new Stage();
         dialog.setTitle("Ввод данных");
@@ -407,21 +380,8 @@ public class OrderController {
         cancelButton.setOnAction(e -> {
             dialog.close();
         });
-        /*Button cancelButton = new Button("Отмена");
 
-        final String[] result = new String[1];
-
-        okButton.setOnAction(e -> {
-            result[0] = textField.getText();
-            dialog.close();
-        });
-
-        cancelButton.setOnAction(e -> {
-            result[0] = null;
-            dialog.close();
-        });*/
-
-        /*VBox layout = new VBox(10);
+        VBox layout = new VBox(10);
         layout.getChildren().addAll(
                 new Label("Введите Имя:"),
                 textName,
@@ -557,19 +517,6 @@ public class OrderController {
             cancelButton.setOnAction(h -> {
                 dialogs.close();
             });
-        /*Button cancelButton = new Button("Отмена");
-
-        final String[] result = new String[1];
-
-        okButton.setOnAction(e -> {
-            result[0] = textField.getText();
-            dialog.close();
-        });
-
-        cancelButton.setOnAction(e -> {
-            result[0] = null;
-            dialog.close();
-        });*/
 
             VBox layout = new VBox(10);
             layout.getChildren().addAll(
@@ -577,7 +524,7 @@ public class OrderController {
                     textName,
                     new Label("ВВедите дату рождения:"),
                     textDate_of_birth,
-                    new Label("ВВедите адрес:"),
+                    new Label("ВВедите адрес:"), 
                     textAddress,
                     new Label("Введите E-Mail:"),
                     textE_mail,
