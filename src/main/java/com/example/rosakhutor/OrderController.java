@@ -423,7 +423,8 @@ public class OrderController {
             dialogs.initOwner(primaryStage);
 
             TextField textName = new TextField();
-            TextField textDate_of_birth = new TextField();//data picker
+            //TextField textDate_of_birth = new TextField();//data picker
+            DatePicker datePicker = new DatePicker();
             TextField textAddress = new TextField();
             TextField textE_mail = new TextField();
             TextField textTelephone = new TextField();
@@ -449,7 +450,39 @@ public class OrderController {
                     // Обработка данных
                     //System.out.println("Добавлен клиент: " + name);
                 }
-                if (textDate_of_birth.getText().isEmpty()) {
+                if (datePicker.getValue() != null) {
+                    // Проверяем что дата не в будущем
+                    if (datePicker.getValue().isAfter(LocalDate.now())) {
+                        Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                        infoAlert.setTitle("Внимание");
+                        infoAlert.setHeaderText("Ошибка");
+                        infoAlert.setContentText("Дата не может быть в будущем");
+                        infoAlert.showAndWait();
+                        System.out.println("Неверная дата");
+                        datePicker.setValue(null);
+                    }else {
+                        // Проверяем что возраст больше 18 лет
+                        if (datePicker.getValue().plusYears(18).isAfter(LocalDate.now())) {
+                            Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                            infoAlert.setTitle("Внимание");
+                            infoAlert.setHeaderText("Ошибка");
+                            infoAlert.setContentText("Возраст должен быть больше 18 лет");
+                            infoAlert.showAndWait();
+                            System.out.println("Возраст меньше 18 лет");
+                            datePicker.setValue(null);
+                        } else {
+                            date_of_birth = datePicker.getValue().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+                        }
+                    }
+                } else {
+                    Alert infoAlert = new Alert(Alert.AlertType.WARNING);
+                    infoAlert.setTitle("Внимание");
+                    infoAlert.setHeaderText("Пустое поле");
+                    infoAlert.setContentText("Поле 'Дата рождения' не может быть пустым");
+                    infoAlert.showAndWait();
+                    System.out.println("Поле даты рождения пустое");
+                }
+                /*if (textDate_of_birth.getText().isEmpty()) {
                     Alert infoAlert = new Alert(Alert.AlertType.WARNING);
                     infoAlert.setTitle("Внимание");
                     infoAlert.setHeaderText("Пустое поле");
@@ -458,7 +491,7 @@ public class OrderController {
                     System.out.println("Поле даты рождения пустое");
                 } else {
                     date_of_birth = textDate_of_birth.getText();
-                }
+                }*/
                 if (textAddress.getText().isEmpty()) {
                     Alert infoAlert = new Alert(Alert.AlertType.WARNING);
                     infoAlert.setTitle("Внимание");
@@ -549,7 +582,8 @@ public class OrderController {
                     new Label("Введите Имя:"),
                     textName,
                     new Label("ВВедите дату рождения:"),
-                    textDate_of_birth,
+                    //textDate_of_birth,
+                    datePicker,
                     new Label("ВВедите адрес:"), 
                     textAddress,
                     new Label("Введите E-Mail:"),
