@@ -86,4 +86,14 @@ public class DbConnector {
         ResultSet resultSet = stmt.executeQuery();
         return resultSet;
     }
+
+    public ResultSet getClients() throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = null;
+        Connection connection = DbConnector.getDbConnect();
+        stmt = connection.prepareStatement("SELECT * FROM clients;");
+
+
+        ResultSet resultSet = stmt.executeQuery();
+        return resultSet;
+    }
 }
