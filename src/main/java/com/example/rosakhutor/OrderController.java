@@ -6,12 +6,15 @@ import com.google.zxing.client.j2se.MatrixToImageConfig;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.oned.Code128Writer;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
@@ -89,14 +92,6 @@ public class OrderController {
     }
 
     public void OrderNumber() throws SQLException, ClassNotFoundException {
-        /*ResultSet resultSet = dbConnector.getOrderId();
-        System.out.println(resultSet);
-        if(resultSet.next()){
-            last_id = resultSet.getInt("max");
-            last_id = last_id + 1;
-            System.out.println(last_id);
-            orderNumber.setText(String.valueOf(last_id));
-        }*/
         ResultSet resultSet = dbConnector.getOrderCode();
         System.out.println(resultSet);
         if(resultSet.next()) {
@@ -280,19 +275,58 @@ public class OrderController {
     }
 
 
-    public void ClientsShowInputDialog() {
+    public void ClientsShowInputDialog() throws SQLException, ClassNotFoundException {
         Stage dialog = new Stage();
-        dialog.setTitle("Ввод данных");
+        dialog.setTitle("КЛИЕНТЫ");
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(primaryStage);
 
+        // Создаем таблицу
+        TableView<Client> table = new TableView<>();
+
+        // Создаем колонки
+        TableColumn<Client, Integer> idColumn = new TableColumn<>("ID");
+        idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
+
+        TableColumn<Client, String> nameColumn = new TableColumn<>("Имя");
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+        TableColumn<Client, String> birthDateColumn = new TableColumn<>("Дата рождения");
+        birthDateColumn.setCellValueFactory(new PropertyValueFactory<>("dateOfBirth"));
+
+        TableColumn<Client, String> addressColumn = new TableColumn<>("Адрес");
+        addressColumn.setCellValueFactory(new PropertyValueFactory<>("address"));
+
+        TableColumn<Client, String> emailColumn = new TableColumn<>("E-Mail");
+        emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
+
+        TableColumn<Client, String> telephoneColumn = new TableColumn<>("Телефон");
+        telephoneColumn.setCellValueFactory(new PropertyValueFactory<>("telephone"));
+
+        // Добавляем колонки в таблицу
+        table.getColumns().addAll(idColumn, nameColumn, birthDateColumn, addressColumn, emailColumn, telephoneColumn);
+
         Button addButton = new Button("ДОБАВИТЬ КЛИЕНТА");
+        Button refreshButton = new Button("ОБНОВИТЬ");
         Button allCancelButton = new Button("ЗАКРЫТЬ");
         allCancelButton.setOnAction(e -> {dialog.close();});
 
         addButton.setOnAction(e -> {AddClientsAdd();});
 
-        VBox layout = new VBox(10);
+        refreshButton.setOnAction(e -> {
+            try {
+                loadClientsFromDatabase(table);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        // Загружаем данные при открытии окна
+        loadClientsFromDatabase(table);
+
+        /*VBox layout = new VBox(10);
         layout.getChildren().addAll(
                 addButton,
                 allCancelButton,
@@ -301,14 +335,59 @@ public class OrderController {
 
         Scene scene = new Scene(layout, 500, 400);
         dialog.setScene(scene);
+        dialog.showAndWait();*/
+
+        // Создаем layout
+        VBox mainLayout = new VBox(10);
+        HBox buttonLayout = new HBox(10);
+        buttonLayout.getChildren().addAll(addButton, refreshButton, allCancelButton);
+
+        mainLayout.getChildren().addAll(table, buttonLayout);
+       // mainLayout.setPadding(new Insets(10));
+
+        Scene scene = new Scene(mainLayout, 1050, 500);
+        dialog.setScene(scene);
         dialog.showAndWait();
     }
+
+    // Метод для загрузки клиентов из базы данных
+    private void loadClientsFromDatabase(TableView<Client> table) throws SQLException, ClassNotFoundException {
+        ObservableList<Client> clients = FXCollections.observableArrayList();
+
+        /*String query = "SELECT id, name, date_of_birth, address, email, telephone FROM clients";
+
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {*/
+        ResultSet resultSet = dbConnector.getClients();
+        while (resultSet.next()) {
+            Client client = new Client(
+                    resultSet.getInt("id"),
+                    resultSet.getString("name"),
+                    resultSet.getString("date_of_birth"),
+                    resultSet.getString("address"),
+                    resultSet.getString("e_mail"),
+                    resultSet.getString("telephone")
+            );
+            clients.add(client);
+        }
+
+        table.setItems(clients);
+
+
+
+        /*} catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Ошибка", "Не удалось загрузить данные: " + e.getMessage());
+        }*/
+    }
+
 
     public void Test(){System.out.println(id_client);}
 
     public void AddClientsAdd(){
         Stage dialogs = new Stage();
-        dialogs.setTitle("Ввод данных");
+        dialogs.setTitle("Добавить клиента");
         dialogs.initModality(Modality.APPLICATION_MODAL);
         dialogs.initOwner(primaryStage);
 

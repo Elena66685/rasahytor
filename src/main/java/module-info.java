@@ -6,6 +6,7 @@ module com.example.rosakhutor {
     requires java.management;
     requires com.google.zxing;
     requires com.google.zxing.javase;
+    requires mysql.connector.j;
 
 
     opens com.example.rosakhutor to javafx.fxml;
