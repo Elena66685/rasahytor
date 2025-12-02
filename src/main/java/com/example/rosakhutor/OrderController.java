@@ -326,17 +326,6 @@ public class OrderController {
         // Загружаем данные при открытии окна
         loadClientsFromDatabase(table);
 
-        /*VBox layout = new VBox(10);
-        layout.getChildren().addAll(
-                addButton,
-                allCancelButton,
-                new HBox(10)
-        );
-
-        Scene scene = new Scene(layout, 500, 400);
-        dialog.setScene(scene);
-        dialog.showAndWait();*/
-
         // Создаем layout
         VBox mainLayout = new VBox(10);
         HBox buttonLayout = new HBox(10);
@@ -354,11 +343,7 @@ public class OrderController {
     private void loadClientsFromDatabase(TableView<Client> table) throws SQLException, ClassNotFoundException {
         ObservableList<Client> clients = FXCollections.observableArrayList();
 
-        /*String query = "SELECT id, name, date_of_birth, address, email, telephone FROM clients";
 
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query);
-             ResultSet rs = stmt.executeQuery()) {*/
         ResultSet resultSet = dbConnector.getClients();
         while (resultSet.next()) {
             Client client = new Client(
@@ -374,12 +359,6 @@ public class OrderController {
 
         table.setItems(clients);
 
-
-
-        /*} catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Ошибка", "Не удалось загрузить данные: " + e.getMessage());
-        }*/
     }
 
 
@@ -407,18 +386,11 @@ public class OrderController {
             String e_mail = "";
             String telephone = "";
             //Проверка на пустоту
-            if (textName.getText().isEmpty()) {
-                Alert infoAlert = new Alert(Alert.AlertType.WARNING);
-                infoAlert.setTitle("Внимание");
-                infoAlert.setHeaderText("Пустое поле");
-                infoAlert.setContentText("Поле 'Имя' не может быть пустым");
-                infoAlert.showAndWait();
-                System.out.println("Поле имени пустое");
-            } else {
-                name = textName.getText();
-                // Обработка данных
-                //System.out.println("Добавлен клиент: " + name);
-            }
+            name = textName.getText();
+            address = textAddress.getText();
+            e_mail = textE_mail.getText();
+            telephone = textTelephone.getText();
+
             if (datePicker.getValue() != null) {
                 // Проверяем что дата не в будущем
                 if (datePicker.getValue().isAfter(LocalDate.now())) {
@@ -443,44 +415,6 @@ public class OrderController {
                         date_of_birth = datePicker.getValue().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
                     }
                 }
-            } else {
-                Alert infoAlert = new Alert(Alert.AlertType.WARNING);
-                infoAlert.setTitle("Внимание");
-                infoAlert.setHeaderText("Пустое поле");
-                infoAlert.setContentText("Поле 'Дата рождения' не может быть пустым");
-                infoAlert.showAndWait();
-                System.out.println("Поле даты рождения пустое");
-            }
-
-            if (textAddress.getText().isEmpty()) {
-                Alert infoAlert = new Alert(Alert.AlertType.WARNING);
-                infoAlert.setTitle("Внимание");
-                infoAlert.setHeaderText("Пустое поле");
-                infoAlert.setContentText("Поле 'Адрес' не может быть пустым");
-                infoAlert.showAndWait();
-                System.out.println("Поле адреса пустое");
-            } else {
-                address = textAddress.getText();
-            }
-            if (textE_mail.getText().isEmpty()) {
-                Alert infoAlert = new Alert(Alert.AlertType.WARNING);
-                infoAlert.setTitle("Внимание");
-                infoAlert.setHeaderText("Пустое поле");
-                infoAlert.setContentText("Поле 'E_mail' не может быть пустым");
-                infoAlert.showAndWait();
-                System.out.println("Поле E_mail пустое");
-            } else {
-                e_mail = textE_mail.getText();
-            }
-            if (textTelephone.getText().isEmpty()) {
-                Alert infoAlert = new Alert(Alert.AlertType.WARNING);
-                infoAlert.setTitle("Внимание");
-                infoAlert.setHeaderText("Пустое поле");
-                infoAlert.setContentText("Поле 'Телефон' не может быть пустым");
-                infoAlert.showAndWait();
-                System.out.println("Поле телефон пустое");
-            } else {
-                telephone = textTelephone.getText();
             }
 
             if (!(name.equals("") || date_of_birth.equals("") || address.equals("") || e_mail.equals("") || telephone.equals(""))){
@@ -526,9 +460,9 @@ public class OrderController {
                 Alert infoAlert = new Alert(Alert.AlertType.WARNING);
                 infoAlert.setTitle("Внимание");
                 infoAlert.setHeaderText("Пустое поле");
-                infoAlert.setContentText("Поле не может быть пустым");
+                infoAlert.setContentText("Вы ввели не все данные");
                 infoAlert.showAndWait();
-                System.out.println("Вы ввели не все данные");
+                System.out.println("Поле не может быть пустым");
             }
 
         });
