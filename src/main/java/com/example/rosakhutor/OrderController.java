@@ -8,6 +8,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.oned.Code128Writer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -312,43 +313,109 @@ public class OrderController {
         // Добавляем колонки в таблицу
         table.getColumns().addAll(idColumn, nameColumn, birthDateColumn, addressColumn, emailColumn, telephoneColumn);
 
+        // === ДОБАВЛЯЕМ ПОИСКОВУЮ СТРОКУ ===
+        TextField searchField = new TextField();
+        searchField.setPromptText("Поиск по имени или телефону...");
+        searchField.setPrefWidth(300);
+
+        // Создаем списки для фильтрации
+        ObservableList<Client> originalClientsList = FXCollections.observableArrayList();
+        FilteredList<Client> filteredClientsList = new FilteredList<>(originalClientsList);
+
+        // Устанавливаем фильтрованные данные в таблицу
+        table.setItems(filteredClientsList);
+
+        // Настраиваем обработчик поиска
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            updateFilter(newValue, filteredClientsList);
+        });
+
         Button addButton = new Button("ДОБАВИТЬ КЛИЕНТА");
-        Button refreshButton = new Button("ОБНОВИТЬ");
+        //Button refreshButton = new Button("ОБНОВИТЬ");
         Button allCancelButton = new Button("ЗАКРЫТЬ");
         allCancelButton.setOnAction(e -> {dialog.close();});
 
-        addButton.setOnAction(e -> {AddClientsAdd();});
+        addButton.setOnAction(e -> {AddClientsAdd(table, originalClientsList, searchField);});
 
-        refreshButton.setOnAction(e -> {
+       /* refreshButton.setOnAction(e -> {
             try {
-                loadClientsFromDatabase(table);
+                loadClientsFromDatabase(table, originalClientsList);
+                searchField.clear(); // Очищаем поиск при обновлении
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
             } catch (ClassNotFoundException ex) {
                 throw new RuntimeException(ex);
             }
-        });
+        });*/
 
         // Загружаем данные при открытии окна
-        loadClientsFromDatabase(table);
+        loadClientsFromDatabase(table, originalClientsList);
 
-        // Создаем layout
+        // Создаем layout с поисковой строкой
         VBox mainLayout = new VBox(10);
-        HBox buttonLayout = new HBox(10);
-        buttonLayout.getChildren().addAll(addButton, refreshButton, allCancelButton);
 
-        mainLayout.getChildren().addAll(table, buttonLayout);
-       // mainLayout.setPadding(new Insets(10));
+        // Панель поиска
+        HBox searchLayout = new HBox(10);
+        searchLayout.getChildren().addAll(new Label("Поиск:"), searchField);
+
+        // Панель кнопок
+        HBox buttonLayout = new HBox(10);
+        buttonLayout.getChildren().addAll(addButton, allCancelButton);
+
+        // Добавляем все элементы в основной layout
+        mainLayout.getChildren().addAll(searchLayout, table, buttonLayout);
+        //mainLayout.setPadding(new Insets(10));
 
         Scene scene = new Scene(mainLayout, 1050, 500);
         dialog.setScene(scene);
         dialog.showAndWait();
     }
 
-    // Метод для загрузки клиентов из базы данных
-    private void loadClientsFromDatabase(TableView<Client> table) throws SQLException, ClassNotFoundException {
-        ObservableList<Client> clients = FXCollections.observableArrayList();
 
+
+    public void RefreshButton(TableView<Client> table, ObservableList<Client> originalClientsList, TextField searchField) throws SQLException, ClassNotFoundException {
+                loadClientsFromDatabase(table, originalClientsList);
+                //searchField.clear(); // Очищаем поиск при обновлении
+    }
+
+
+    // Метод для фильтрации таблицы
+    private void updateFilter(String searchText, FilteredList<Client> filteredList) {
+        if (searchText == null || searchText.isEmpty()) {
+            filteredList.setPredicate(client -> true);
+        } else {
+            String lowerCaseFilter = searchText.toLowerCase();
+
+            filteredList.setPredicate(client -> {
+                // Поиск по имени (без учета регистра)
+                if (client.getName() != null && client.getName().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                }
+
+                // Поиск по телефону (без учета регистра)
+                if (client.getTelephone() != null && client.getTelephone().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                }
+
+                // Дополнительный поиск по телефону (только цифры)
+                if (client.getTelephone() != null) {
+                    String phoneDigits = client.getTelephone().replaceAll("[^0-9]", "");
+                    String searchDigits = lowerCaseFilter.replaceAll("[^0-9]", "");
+                    if (!searchDigits.isEmpty() && phoneDigits.contains(searchDigits)) {
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+        }
+    }
+
+    // Метод для загрузки клиентов из базы данных
+    private void loadClientsFromDatabase(TableView<Client> table, ObservableList<Client> originalList)
+            throws SQLException, ClassNotFoundException {
+
+        ObservableList<Client> clients = FXCollections.observableArrayList();
 
         ResultSet resultSet = dbConnector.getClients();
         while (resultSet.next()) {
@@ -363,14 +430,14 @@ public class OrderController {
             clients.add(client);
         }
 
-        table.setItems(clients);
-
+        // Обновляем оригинальный список
+        originalList.setAll(clients);
     }
 
 
     public void Test(){System.out.println(id_client);}
 
-    public void AddClientsAdd(){
+    public void AddClientsAdd(TableView<Client> table, ObservableList<Client> originalClientsList, TextField searchField){
         Stage dialogs = new Stage();
         dialogs.setTitle("Добавить клиента");
         dialogs.initModality(Modality.APPLICATION_MODAL);
@@ -442,6 +509,7 @@ public class OrderController {
                             infoAlert.setContentText("Клиент успешно добавлен");
                             infoAlert.showAndWait();
                             System.out.println("Внесен новый клиент в базу данных");
+                            RefreshButton(table,  originalClientsList, searchField);
                         } catch (SQLException ex) {
                             throw new RuntimeException(ex);
                         }
