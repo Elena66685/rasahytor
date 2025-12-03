@@ -82,8 +82,13 @@ public class OrderController {
     public void initialize() throws SQLException, ClassNotFoundException { // Метод автоматически вызывается после загрузки FXML
         System.out.println("Контроллер загружен");
         OrderNumber();
-        slidertext.textProperty().bind(slider.valueProperty().asString("%.0f"));
+        SliderValuo();
 
+    }
+
+    public void SliderValuo(){
+        slidertext.textProperty().bind(slider.valueProperty().asString("%.0f" + "мин."));
+        slidertext.setEditable(false);
     }
 
 
@@ -99,6 +104,7 @@ public class OrderController {
             code = String.valueOf(code_int);
             System.out.println(code);
             orderNumber.setText(code);
+            orderNumber.setEditable(false);
         }
     }
 
