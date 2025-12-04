@@ -313,6 +313,18 @@ public class OrderController {
         // Добавляем колонки в таблицу
         table.getColumns().addAll(idColumn, nameColumn, birthDateColumn, addressColumn, emailColumn, telephoneColumn);
 
+        //=== ДОБАВЛЯЕМ ОБРАБОТЧИК ДВОЙНОГО КЛИКА ===
+        table.setRowFactory(tv -> {
+            TableRow<Client> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (!row.isEmpty())) {
+                    Client selectedClient = row.getItem();
+                    handleClientSelection(selectedClient, dialog);
+                }
+            });
+            return row;
+        });
+
         // === ДОБАВЛЯЕМ ПОИСКОВУЮ СТРОКУ ===
         TextField searchField = new TextField();
         searchField.setPromptText("Поиск по имени или телефону...");
@@ -336,17 +348,6 @@ public class OrderController {
         allCancelButton.setOnAction(e -> {dialog.close();});
 
         addButton.setOnAction(e -> {AddClientsAdd(table, originalClientsList, searchField);});
-
-       /* refreshButton.setOnAction(e -> {
-            try {
-                loadClientsFromDatabase(table, originalClientsList);
-                searchField.clear(); // Очищаем поиск при обновлении
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            } catch (ClassNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
-        });*/
 
         // Загружаем данные при открытии окна
         loadClientsFromDatabase(table, originalClientsList);
@@ -410,6 +411,14 @@ public class OrderController {
             });
         }
     }
+
+    // Метод обработки выбора клиента
+    private void handleClientSelection(Client client, Stage dialog) {
+        //System.out.println("Выбран клиент: " + client.getName() + ", тел: " + client.getTelephone());
+        id_client = client.getId();
+        System.out.println(id_client);
+    }
+
 
     // Метод для загрузки клиентов из базы данных
     private void loadClientsFromDatabase(TableView<Client> table, ObservableList<Client> originalList)
@@ -514,7 +523,7 @@ public class OrderController {
                             throw new RuntimeException(ex);
                         }
 
-                        try {
+                        /*try {
                             ResultSet resultSet_2 = dbConnector.getClientsId(name, date_of_birth, address, e_mail, telephone);
                             if (resultSet_2.next()) {
                                 id_client = resultSet_2.getInt("id");
@@ -523,7 +532,7 @@ public class OrderController {
                             throw new RuntimeException(ex);
                         } catch (ClassNotFoundException ex) {
                             throw new RuntimeException(ex);
-                        }
+                        }*/
                     }
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
