@@ -106,4 +106,19 @@ public class DbConnector {
         ResultSet resultSet = stmt.executeQuery();
         return resultSet;
     }
+
+    public void singUpOrdersServices(Integer id_orders, Integer id_services) throws SQLException {
+
+        PreparedStatement pstmt = dbConnect.prepareStatement("INSERT INTO orders_services (id_orders, id_services) values ("+id_orders+", "+id_services+");");
+        pstmt.executeUpdate();
+    }
+
+    public ResultSet getServicesId(String name) throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = null;
+        Connection connection = DbConnector.getDbConnect();
+        stmt = connection.prepareStatement("SELECT services.id FROM services WHERE name = '" + name + "';");
+
+        ResultSet resultSet = stmt.executeQuery();
+        return resultSet;
+    }
 }

@@ -24,7 +24,7 @@
                   </HBox>
                   <HBox prefHeight="50.0" prefWidth="362.0">
                      <children>
-                        <Slider fx:id="slider" max="900.0" min="1.0" prefHeight="38.0" prefWidth="228.0" showTickLabels="true" showTickMarks="true" value="30.0" />
+                        <Slider fx:id="slider" max="900.0" min="30.0" prefHeight="38.0" prefWidth="228.0" showTickLabels="true" showTickMarks="true" value="30.0" />
                         <TextField fx:id="slidertext" prefHeight="26.0" prefWidth="67.0" />
                      </children>
                   </HBox>
