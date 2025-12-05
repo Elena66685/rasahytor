@@ -44,16 +44,21 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static com.example.rosakhutor.GlobalVars.*;
 import static java.nio.file.Files.readAllBytes;
+import java.util.List;      // Правильный List интерфейс
 
 
 public class OrderController {
 
     SellerController sellerController = new SellerController();
     DbConnector dbConnector = new DbConnector();
+    public ArrayList<CheckBox> checkBoxes = new ArrayList<>();
+    List<String> strings;
     int last_id;
     String code;
     private final Stage primaryStage = new Stage();
@@ -80,11 +85,43 @@ public class OrderController {
     @FXML
     private Button ad_a_client;
 
+    @FXML
+    private VBox services;
+
+    @FXML
+    private Button servicesButton;
+
     public void initialize() throws SQLException, ClassNotFoundException { // Метод автоматически вызывается после загрузки FXML
         System.out.println("Контроллер загружен");
         OrderNumber();
         SliderValuo();
+        ServicesBox();
 
+    }
+
+    public void ServicesBox() throws SQLException, ClassNotFoundException {
+        ResultSet resultSet = dbConnector.getServicesName();
+        while (resultSet.next()){
+            CheckBox checkBox = new CheckBox(resultSet.getString("name"));
+            // Добавляем слушатель к каждому CheckBox
+            checkBox.selectedProperty().addListener((obs, oldValue, newValue) -> {
+                showSelected();  // Вызываем метод при любом изменении
+            });
+            checkBoxes.add(checkBox);
+            services.getChildren().add(checkBox);
+
+        }
+    }
+
+    @FXML
+    private void showSelected() {
+        // 1. Фильтрация выбранных CheckBox
+        List<String> selected = checkBoxes.stream()
+                .filter(CheckBox::isSelected)           // Шаг 1: Фильтруем только выбранные
+                .map(CheckBox::getText)                 // Шаг 2: Преобразуем CheckBox в текст
+                .collect(Collectors.toList());          // Шаг 3: Собираем в список
+        strings = selected;
+        System.out.println(strings);
     }
 
     public void SliderValuo(){
@@ -312,6 +349,8 @@ public class OrderController {
 
         // Добавляем колонки в таблицу
         table.getColumns().addAll(idColumn, nameColumn, birthDateColumn, addressColumn, emailColumn, telephoneColumn);
+        System.out.println(strings);
+        System.out.println(id_client);
 
         //=== ДОБАВЛЯЕМ ОБРАБОТЧИК ДВОЙНОГО КЛИКА ===
         table.setRowFactory(tv -> {
@@ -343,7 +382,6 @@ public class OrderController {
         });
 
         Button addButton = new Button("ДОБАВИТЬ КЛИЕНТА");
-        //Button refreshButton = new Button("ОБНОВИТЬ");
         Button allCancelButton = new Button("ЗАКРЫТЬ");
         allCancelButton.setOnAction(e -> {dialog.close();});
 
@@ -376,7 +414,6 @@ public class OrderController {
 
     public void RefreshButton(TableView<Client> table, ObservableList<Client> originalClientsList, TextField searchField) throws SQLException, ClassNotFoundException {
                 loadClientsFromDatabase(table, originalClientsList);
-                //searchField.clear(); // Очищаем поиск при обновлении
     }
 
 
@@ -522,17 +559,6 @@ public class OrderController {
                         } catch (SQLException ex) {
                             throw new RuntimeException(ex);
                         }
-
-                        /*try {
-                            ResultSet resultSet_2 = dbConnector.getClientsId(name, date_of_birth, address, e_mail, telephone);
-                            if (resultSet_2.next()) {
-                                id_client = resultSet_2.getInt("id");
-                            }
-                        } catch (SQLException ex) {
-                            throw new RuntimeException(ex);
-                        } catch (ClassNotFoundException ex) {
-                            throw new RuntimeException(ex);
-                        }*/
                     }
                 } catch (SQLException ex) {
                     throw new RuntimeException(ex);
@@ -574,6 +600,19 @@ public class OrderController {
         dialogs.setScene(scene);
         dialogs.showAndWait();
 
+    }
+
+    public void AddOrders() throws SQLException {
+        // Получаем текущий момент времени
+        LocalDateTime now = LocalDateTime.now();
+        Timestamp ts = Timestamp.valueOf(now);
+        System.out.println(ts.toString());
+        String result = ts.toString().substring(0, 19);
+        System.out.println(result);
+        String min = slidertext.getText();
+        String min_ = min.substring(0, min.length() - 4);
+
+        dbConnector.singUpOrders(code, ts, id_client, 2, Integer.parseInt(min_));
     }
 
 }

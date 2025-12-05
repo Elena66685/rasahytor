@@ -63,10 +63,10 @@ public class DbConnector {
     }
 
     public void singUpOrders(String code, Timestamp time,
-                             Integer clients_id, Integer status_id, String data, Integer times) throws SQLException {
+                             Integer clients_id, Integer status_id, Integer times) throws SQLException {
 
         PreparedStatement pstmt = dbConnect.prepareStatement("INSERT INTO orders (code, time," +
-                " clients_id, status_id, closing_date, rental_time) values ('"+code+"', '"+time+"', "+clients_id+", "+status_id+", '"+data+"', "+times+");");
+                " clients_id, status_id, rental_time) values ('"+code+"', '"+time+"', "+clients_id+", "+status_id+", "+times+");");
         pstmt.executeUpdate();
     }
 
@@ -91,6 +91,16 @@ public class DbConnector {
         PreparedStatement stmt = null;
         Connection connection = DbConnector.getDbConnect();
         stmt = connection.prepareStatement("SELECT * FROM clients;");
+
+
+        ResultSet resultSet = stmt.executeQuery();
+        return resultSet;
+    }
+
+    public ResultSet getServicesName() throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = null;
+        Connection connection = DbConnector.getDbConnect();
+        stmt = connection.prepareStatement("SELECT services.name FROM services;");
 
 
         ResultSet resultSet = stmt.executeQuery();
