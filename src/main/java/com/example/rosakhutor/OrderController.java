@@ -602,7 +602,7 @@ public class OrderController {
 
     }
 
-    public void AddOrders() throws SQLException, ClassNotFoundException {
+    /*public void AddOrders() throws SQLException, ClassNotFoundException {
         // Получаем текущий момент времени
         LocalDateTime now = LocalDateTime.now();
         Timestamp ts = Timestamp.valueOf(now);
@@ -622,18 +622,7 @@ public class OrderController {
             orders_id = resultSet.getInt("max");
             System.out.println("Создан заказ ID: " + orders_id);
         }
-        /*for (String string : strings){
-            ResultSet resultSet1 = dbConnector.getServicesId(string);
-            if (!resultSet1.next()) {
-                System.out.println("Услуга не найдена: " + string);
-                resultSet1.close();
-                continue; // Пропускаем эту услугу
-            }
-            int services_id = resultSet1.getInt("id");
-            dbConnector.singUpOrdersServices(orders_id, services_id);
-            String message = String.format("Запись в services: orders_id=%d, services_id=%d", orders_id, services_id);
-            System.out.println(message);
-        }*/
+
         // Добавляем услуги
         if (strings != null && !strings.isEmpty()) {
             for (String serviceName : strings) {
@@ -658,6 +647,60 @@ public class OrderController {
         }
 
         System.out.println("Заказ успешно создан!");
+    }*/
+
+    public void AddOrders() throws SQLException, ClassNotFoundException {
+        // Получаем текущий момент времени
+        LocalDateTime now = LocalDateTime.now();
+        Timestamp ts = Timestamp.valueOf(now);
+        System.out.println(ts.toString());
+        String result = ts.toString().substring(0, 19);
+        System.out.println(result);
+        String min = slidertext.getText();
+        String min_ = min.substring(0, min.length() - 4);
+
+        // Добавляем услуги
+        if (strings != null && !strings.isEmpty()) {
+            ResultSet resultSet_ = dbConnector.getOrdersCode(code);
+            if (!(resultSet_.next())) {
+                dbConnector.singUpOrders(code, ts, id_client, 2, Integer.parseInt(min_));
+                // Получаем ID заказа
+                int orders_id;
+                try (ResultSet resultSet = dbConnector.getOrderId()) {
+                    if (!resultSet.next()) {
+                        throw new SQLException("Не удалось получить ID заказа");
+                    }
+                    orders_id = resultSet.getInt("max");
+                    System.out.println("Создан заказ ID: " + orders_id);
+                }
+                for (String serviceName : strings) {
+                    if (serviceName == null || serviceName.trim().isEmpty()) {
+                        continue;
+                    }
+
+                    try (ResultSet resultSet1 = dbConnector.getServicesId(serviceName.trim())) {
+                        if (resultSet1.next()) {
+                            int services_id = resultSet1.getInt("id");
+                            dbConnector.singUpOrdersServices(orders_id, services_id);
+
+                            System.out.printf("Добавлена услуга: заказ=%d, услуга=%d, название='%s'%n",
+                            orders_id, services_id, serviceName);
+                        } else {
+                            System.err.println("Услуга не найдена в БД: " + serviceName);
+                        }
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    } catch (ClassNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            } else {
+                System.out.println("Заказ с таким кодом уже существует");
+            }
+
+        } else {
+            System.out.println("В заказ не добавлено ни одной услуги");
+        }
     }
 
 }

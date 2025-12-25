@@ -121,4 +121,13 @@ public class DbConnector {
         ResultSet resultSet = stmt.executeQuery();
         return resultSet;
     }
+
+    public ResultSet getOrdersCode(String code) throws SQLException, ClassNotFoundException {
+        PreparedStatement stmt = null;
+        Connection connection = DbConnector.getDbConnect();
+        stmt = connection.prepareStatement("SELECT orders.code FROM orders WHERE code = '"+code+"';");
+
+        ResultSet resultSet = stmt.executeQuery();
+        return resultSet;
+    }
 }
