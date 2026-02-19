@@ -7,6 +7,9 @@ module com.example.rosakhutor {
     requires com.google.zxing;
     requires com.google.zxing.javase;
     requires mysql.connector.j;
+   // requires flying.saucer.pdf;
+    requires org.apache.pdfbox;
+    requires html2pdf;
 
 
     opens com.example.rosakhutor to javafx.fxml;

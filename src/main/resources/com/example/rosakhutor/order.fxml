@@ -28,7 +28,9 @@
                         <TextField fx:id="slidertext" prefHeight="26.0" prefWidth="67.0" />
                      </children>
                   </HBox>
+                  <Label fx:id="name_client" prefHeight="24.0" prefWidth="230.0" />
                   <Button fx:id="barcode" mnemonicParsing="false" onAction="#Barcode" prefHeight="26.0" prefWidth="168.0" text="Сформировать штрих код" />
+                  <Button fx:id="pdf" mnemonicParsing="false" onAction="#AddPdf" text="Сформировать PDF" />
                   <HBox prefHeight="28.0" prefWidth="362.0">
                      <children>
                         <Button fx:id="all_clients" mnemonicParsing="false" onAction="#ClientsShowInputDialog" text="Все клиенты" />

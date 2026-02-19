@@ -6,6 +6,7 @@ import com.google.zxing.client.j2se.MatrixToImageConfig;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.oned.Code128Writer;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -26,12 +27,17 @@ import javax.imageio.ImageIO;
 import javax.management.relation.Role;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.font.PDType0Font;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,13 +50,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
+import com.itextpdf.html2pdf.HtmlConverter;
 
 import static com.example.rosakhutor.GlobalVars.*;
 import static java.nio.file.Files.readAllBytes;
-import java.util.List;      // Правильный List интерфейс
 
 
 public class OrderController {
@@ -63,12 +69,18 @@ public class OrderController {
     String code;
     private final Stage primaryStage = new Stage();
     int id_client;
+    int orders_id;
+    @FXML
+    private Button pdf;
 
     @FXML
     public Button back;
 
     @FXML
     private Button barcode;
+
+    @FXML
+    private Label name_client;
 
     @FXML
     private TextField orderNumber;
@@ -171,31 +183,19 @@ public class OrderController {
         System.out.println(randomStr);
         String barcode = code + dataTime + randomStr;
         System.out.println(barcode);
-        // Извлекаем только дату
-        //LocalDate dateOnly = now.toLocalDate();
-
-        // Формируем форматированный вывод
-        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        //String formattedDate = dateOnly.format(formatter);
-
-        //System.out.println("Только сегодняшняя дата: " + formattedDate);
-
-        //Time time = new Time(System.currentTimeMillis());
-
-        //dbConnector.singUpOrders(code, ts, 45462562, 2, "04.04.2022", 600);
 
         try {
             // Шаг 1: Получаем директорию для сохранения
             File selectedDirectory = selectSaveDirectory(primaryStage);
             if (selectedDirectory == null) {
                 showError("Директория не выбрана");
-                //return null;
+                return;
             }
 
             // Шаг 2: Проверяем права записи
             if (!checkWritePermissions(selectedDirectory)) {
                 showError("Нет прав записи в выбранную директорию: " + selectedDirectory.getAbsolutePath());
-                //return null;
+                return;
             }
 
             // Шаг 3: Подготавливаем данные для штрих-кода (убираем пробелы)
@@ -224,14 +224,11 @@ public class OrderController {
                     "Штрих-код: " + barcodeData;
 
             showSuccess(successMessage);
-            //return filePath.toString();
 
         } catch (IOException e) {
             showError("Ошибка при сохранении файла: " + e.getMessage());
-            //return null;
         } catch (Exception e) {
             showError("Неожиданная ошибка: " + e.getMessage());
-            //return null;
         }
     }
 
@@ -301,23 +298,6 @@ public class OrderController {
 
         return combinedImage;
     }
-
-    private static void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Ошибка");
-        alert.setHeaderText("Ошибка создания штрих-кода");
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private static void showSuccess(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Успех");
-        alert.setHeaderText("Штрих-код создан");
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
 
     public void ClientsShowInputDialog() throws SQLException, ClassNotFoundException {
         Stage dialog = new Stage();
@@ -403,7 +383,6 @@ public class OrderController {
 
         // Добавляем все элементы в основной layout
         mainLayout.getChildren().addAll(searchLayout, table, buttonLayout);
-        //mainLayout.setPadding(new Insets(10));
 
         Scene scene = new Scene(mainLayout, 1050, 500);
         dialog.setScene(scene);
@@ -413,7 +392,7 @@ public class OrderController {
 
 
     public void RefreshButton(TableView<Client> table, ObservableList<Client> originalClientsList, TextField searchField) throws SQLException, ClassNotFoundException {
-                loadClientsFromDatabase(table, originalClientsList);
+        loadClientsFromDatabase(table, originalClientsList);
     }
 
 
@@ -451,9 +430,11 @@ public class OrderController {
 
     // Метод обработки выбора клиента
     private void handleClientSelection(Client client, Stage dialog) {
-        //System.out.println("Выбран клиент: " + client.getName() + ", тел: " + client.getTelephone());
         id_client = client.getId();
         System.out.println(id_client);
+        String name_clients = client.getName();
+        name_client.setText("ФИО: " + name_clients);
+        dialog.close();
     }
 
 
@@ -490,7 +471,6 @@ public class OrderController {
         dialogs.initOwner(primaryStage);
 
         TextField textName = new TextField();
-        //TextField textDate_of_birth = new TextField();//data picker
         DatePicker datePicker = new DatePicker();
         TextField textAddress = new TextField();
         TextField textE_mail = new TextField();
@@ -504,7 +484,7 @@ public class OrderController {
             String address = "";
             String e_mail = "";
             String telephone = "";
-            //Проверка на пустоту
+
             name = textName.getText();
             address = textAddress.getText();
             e_mail = textE_mail.getText();
@@ -513,21 +493,13 @@ public class OrderController {
             if (datePicker.getValue() != null) {
                 // Проверяем что дата не в будущем
                 if (datePicker.getValue().isAfter(LocalDate.now())) {
-                    Alert infoAlert = new Alert(Alert.AlertType.WARNING);
-                    infoAlert.setTitle("Внимание");
-                    infoAlert.setHeaderText("Ошибка");
-                    infoAlert.setContentText("Дата не может быть в будущем");
-                    infoAlert.showAndWait();
+                    showWarning("Дата не может быть в будущем");
                     System.out.println("Неверная дата");
                     datePicker.setValue(null);
-                }else {
+                } else {
                     // Проверяем что возраст больше 18 лет
                     if (datePicker.getValue().plusYears(18).isAfter(LocalDate.now())) {
-                        Alert infoAlert = new Alert(Alert.AlertType.WARNING);
-                        infoAlert.setTitle("Внимание");
-                        infoAlert.setHeaderText("Ошибка");
-                        infoAlert.setContentText("Возраст должен быть больше 18 лет");
-                        infoAlert.showAndWait();
+                        showWarning("Возраст должен быть больше 18 лет");
                         System.out.println("Возраст меньше 18 лет");
                         datePicker.setValue(null);
                     } else {
@@ -540,37 +512,23 @@ public class OrderController {
                 try {
                     ResultSet resultSet = dbConnector.getClientsId(name, date_of_birth, address, e_mail, telephone);
                     if (resultSet.next()){
-                        Alert infoAlert = new Alert(Alert.AlertType.WARNING);
-                        infoAlert.setTitle("Внимание");
-                        infoAlert.setHeaderText("Запрос отклонен");
-                        infoAlert.setContentText("Клиент есть в базе");
-                        infoAlert.showAndWait();
+                        showWarning("Клиент уже существует в базе");
                         System.out.println("Клиент существует");
-                    }else {
+                    } else {
                         try {
                             dbConnector.singUpClients(name, date_of_birth, address, e_mail, telephone);
-                            Alert infoAlert = new Alert(Alert.AlertType.INFORMATION);
-                            infoAlert.setTitle("Успех");
-                            infoAlert.setHeaderText("Операция завершена");
-                            infoAlert.setContentText("Клиент успешно добавлен");
-                            infoAlert.showAndWait();
+                            showInfo("Клиент успешно добавлен");
                             System.out.println("Внесен новый клиент в базу данных");
-                            RefreshButton(table,  originalClientsList, searchField);
+                            RefreshButton(table, originalClientsList, searchField);
                         } catch (SQLException ex) {
                             throw new RuntimeException(ex);
                         }
                     }
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                } catch (ClassNotFoundException ex) {
+                } catch (SQLException | ClassNotFoundException ex) {
                     throw new RuntimeException(ex);
                 }
-            }else {
-                Alert infoAlert = new Alert(Alert.AlertType.WARNING);
-                infoAlert.setTitle("Внимание");
-                infoAlert.setHeaderText("Пустое поле");
-                infoAlert.setContentText("Вы ввели не все данные");
-                infoAlert.showAndWait();
+            } else {
+                showWarning("Заполните все поля");
                 System.out.println("Поле не может быть пустым");
             }
 
@@ -583,7 +541,6 @@ public class OrderController {
                 new Label("Введите Имя:"),
                 textName,
                 new Label("ВВедите дату рождения:"),
-                //textDate_of_birth,
                 datePicker,
                 new Label("ВВедите адрес:"),
                 textAddress,
@@ -602,53 +559,6 @@ public class OrderController {
 
     }
 
-    /*public void AddOrders() throws SQLException, ClassNotFoundException {
-        // Получаем текущий момент времени
-        LocalDateTime now = LocalDateTime.now();
-        Timestamp ts = Timestamp.valueOf(now);
-        System.out.println(ts.toString());
-        String result = ts.toString().substring(0, 19);
-        System.out.println(result);
-        String min = slidertext.getText();
-        String min_ = min.substring(0, min.length() - 4);
-
-        dbConnector.singUpOrders(code, ts, id_client, 2, Integer.parseInt(min_));
-        // Получаем ID заказа
-        int orders_id;
-        try (ResultSet resultSet = dbConnector.getOrderId()) {
-            if (!resultSet.next()) {
-                throw new SQLException("Не удалось получить ID заказа");
-            }
-            orders_id = resultSet.getInt("max");
-            System.out.println("Создан заказ ID: " + orders_id);
-        }
-
-        // Добавляем услуги
-        if (strings != null && !strings.isEmpty()) {
-            for (String serviceName : strings) {
-                if (serviceName == null || serviceName.trim().isEmpty()) {
-                    continue;
-                }
-
-                try (ResultSet resultSet1 = dbConnector.getServicesId(serviceName.trim())) {
-                    if (resultSet1.next()) {
-                        int services_id = resultSet1.getInt("id");
-                        dbConnector.singUpOrdersServices(orders_id, services_id);
-
-                        System.out.printf("Добавлена услуга: заказ=%d, услуга=%d, название='%s'%n",
-                                orders_id, services_id, serviceName);
-                    } else {
-                        System.err.println("Услуга не найдена в БД: " + serviceName);
-                    }
-                }
-            }
-        } else {
-            System.out.println("В заказ не добавлено ни одной услуги");
-        }
-
-        System.out.println("Заказ успешно создан!");
-    }*/
-
     public void AddOrders() throws SQLException, ClassNotFoundException {
         // Получаем текущий момент времени
         LocalDateTime now = LocalDateTime.now();
@@ -665,7 +575,6 @@ public class OrderController {
             if (!(resultSet_.next())) {
                 dbConnector.singUpOrders(code, ts, id_client, 2, Integer.parseInt(min_));
                 // Получаем ID заказа
-                int orders_id;
                 try (ResultSet resultSet = dbConnector.getOrderId()) {
                     if (!resultSet.next()) {
                         throw new SQLException("Не удалось получить ID заказа");
@@ -684,13 +593,11 @@ public class OrderController {
                             dbConnector.singUpOrdersServices(orders_id, services_id);
 
                             System.out.printf("Добавлена услуга: заказ=%d, услуга=%d, название='%s'%n",
-                            orders_id, services_id, serviceName);
+                                    orders_id, services_id, serviceName);
                         } else {
                             System.err.println("Услуга не найдена в БД: " + serviceName);
                         }
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    } catch (ClassNotFoundException e) {
+                    } catch (SQLException | ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
                 }
@@ -703,10 +610,171 @@ public class OrderController {
         }
     }
 
+
+    public void AddPdf() {
+        new Thread(() -> {
+            try {
+                // 1. Читаем HTML шаблон
+                String htmlTemplate = readHtmlTemplate();
+
+                // 2. Заменяем плейсхолдеры
+                String filledHtml = fillHtmlTemplate(htmlTemplate);
+
+                // 3. Конвертируем в PDF
+                String fileName = "Договор_№" + orders_id + ".pdf";
+                HtmlConverter.convertToPdf(filledHtml, new FileOutputStream(fileName));
+
+                System.out.println("PDF создан: " + fileName);
+
+                Platform.runLater(() -> showSuccess("PDF создан: " + fileName));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Platform.runLater(() -> showError("Ошибка: " + e.getMessage()));
+            }
+        }).start();
+    }
+
+    /**
+     * Читает HTML шаблон из папки resources
+     */
+    private String readHtmlTemplate() throws IOException {
+        // Путь к файлу в resources (несколько вариантов)
+        String[] possiblePaths = {
+                "src/main/resources/Договор оказания услуг 2.0.html",
+                "resources/Договор оказания услуг 2.0.html",
+                "Договор оказания услуг 2.0.html"
+        };
+
+        File htmlFile = null;
+        for (String path : possiblePaths) {
+            htmlFile = new File(path);
+            if (htmlFile.exists()) {
+                System.out.println("Найден HTML шаблон: " + htmlFile.getAbsolutePath());
+                break;
+            }
+        }
+
+        if (htmlFile == null || !htmlFile.exists()) {
+            // Если файл не найден в файловой системе, пробуем загрузить из classpath
+            InputStream inputStream = getClass().getResourceAsStream("/Договор оказания услуг 2.0.html");
+            if (inputStream != null) {
+                System.out.println("Загружаем HTML шаблон из classpath");
+                return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            }
+            throw new IOException("HTML шаблон не найден! Проверьте путь: src/main/resources/Договор оказания услуг 2.0.html");
+        }
+
+        return new String(Files.readAllBytes(htmlFile.toPath()), StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Заменяет плейсхолдеры в HTML на реальные данные
+     */
+    private String fillHtmlTemplate(String template) throws SQLException, ClassNotFoundException {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        LocalDate today = LocalDate.now();
+
+        // Получаем имя клиента без префикса "ФИО: "
+        String clientName = name_client.getText().replace("ФИО: ", "");
+
+        // Формируем список услуг
+        String servicesList = "";
+        if (strings != null && !strings.isEmpty()) {
+            servicesList = String.join(", ", strings);
+        } else {
+            servicesList = "не указаны";
+        }
+
+        String addressClient = "";
+        ResultSet resultSet = dbConnector.getClientsAddress(id_client);
+        //String addressClient;
+        //addressClient = resultSet.getString("address");
+        if (resultSet.next()) {
+            addressClient = resultSet.getString("address");
+        }
+
+
+        // Паспортные данные (можно добавить поля в форму)
+        String passData = "2205 875098 ОВД Нижнего Новгорода 5.12.2024";
+        //String addressClient = "адрес клиента";
+
+        // Данные исполнителя
+        String landlordName = "Петров Петр Петрович";
+        String landlordAddress = "г.Нижний Новгород, ул.Ленина, 15";
+
+        // Стоимость (можно рассчитать из выбранных услуг)
+        String serviceSum = "5000";
+
+        // Заменяем все плейсхолдеры
+        String filled = template
+                .replace("{{dogovor_num}}", String.valueOf(orders_id))
+                .replace("{city}", "Нижний Новгород")
+                .replace("{currently_date}", today.format(formatter))
+                .replace("{tomorrow_date}", today.plusDays(1).format(formatter))
+                .replace("{fio_client}", clientName)
+                .replace("{pass_data}", passData)
+                .replace("{address_client}", addressClient)
+                .replace("{fio_landlord}", landlordName)
+                .replace("{service_list}", servicesList)
+                .replace("{service_sum}", serviceSum)
+                .replace("{adress_landlord}", landlordAddress)
+                .replace("{ño landlord}", landlordName); // Исправляем опечатку в шаблоне
+
+        return filled;
+    }
+
+    // ========== ЕДИНСТВЕННЫЙ НАБОР МЕТОДОВ ДЛЯ ПОКАЗА СООБЩЕНИЙ ==========
+
+    /**
+     * Показывает сообщение об успехе
+     */
+    private void showSuccess(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Успех");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
+
+    /**
+     * Показывает сообщение об ошибке
+     */
+    private void showError(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Ошибка");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
+
+    /**
+     * Показывает предупреждение
+     */
+    private void showWarning(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Предупреждение");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
+
+    /**
+     * Показывает информационное сообщение
+     */
+    private void showInfo(String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Информация");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
 }
-
-
-
-
-
-
