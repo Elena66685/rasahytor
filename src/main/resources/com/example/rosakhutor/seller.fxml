@@ -12,10 +12,7 @@
       <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true" />
       <Label fx:id="name" layoutX="222.0" layoutY="14.0" prefHeight="18.0" prefWidth="346.0" />
       <Label fx:id="role" layoutX="222.0" layoutY="42.0" prefHeight="18.0" prefWidth="150.0" />
-      <Button fx:id="report" layoutX="246.0" layoutY="175.0" mnemonicParsing="false" onAction="#OpenReportWindow" text="Сформировать отчет" />
-      <Button fx:id="materials" layoutX="430.0" layoutY="175.0" mnemonicParsing="false" onAction="#OpenMaterialsWindow" text="Расходные материалы" />
       <Button fx:id="loginHistory" layoutX="246.0" layoutY="229.0" mnemonicParsing="false" onAction="#OpenLoginHistoryWindow" text="История входа" />
       <Button fx:id="product" layoutX="430.0" layoutY="126.0" mnemonicParsing="false" onAction="#OpenProductWindow" text="Принять товар" />
-      <Label fx:id="timerLabel" layoutX="424.0" layoutY="344.0" prefHeight="18.0" prefWidth="150.0" text="Время" />
    </children>
 </AnchorPane>

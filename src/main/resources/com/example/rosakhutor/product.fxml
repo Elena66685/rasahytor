@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.rosakhutor.ProductController">
+<AnchorPane prefHeight="350.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.rosakhutor.ProductController">
    <children>
-      <Button fx:id="back" layoutX="25.0" layoutY="348.0" mnemonicParsing="false" onAction="#OpenSellerWindow" text="Назад" />
+      <Button fx:id="back" layoutX="48.0" layoutY="286.0" mnemonicParsing="false" onAction="#OpenSellerWindow" text="Назад" />
+      <TextField fx:id="code" layoutX="42.0" layoutY="62.0" promptText="введите код заказа" />
+      <Button fx:id="close" layoutX="48.0" layoutY="175.0" mnemonicParsing="false" onAction="#CloseOrder" text="закрыть заказ" />
    </children>
 </AnchorPane>

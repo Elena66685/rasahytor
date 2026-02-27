@@ -116,7 +116,7 @@ public class DbConnector {
     public ResultSet getServicesId(String name) throws SQLException, ClassNotFoundException {
         PreparedStatement stmt = null;
         Connection connection = DbConnector.getDbConnect();
-        stmt = connection.prepareStatement("SELECT services.id FROM services WHERE name = '" + name + "';");
+        stmt = connection.prepareStatement("SELECT services.id, services.price FROM services WHERE name = '" + name + "';");
 
         ResultSet resultSet = stmt.executeQuery();
         return resultSet;
@@ -139,5 +139,17 @@ public class DbConnector {
 
         ResultSet resultSet = stmt.executeQuery();
         return resultSet;
+    }
+
+    public void updateOrderStatus(Integer status_id, String closing_date, String code) throws SQLException {
+        String sql = "UPDATE orders SET status_id = ?, closing_date = ? WHERE code = ?";
+
+        try (PreparedStatement pstmt = dbConnect.prepareStatement(sql)) {
+            pstmt.setInt(1, status_id);
+            pstmt.setString(2, closing_date);
+            pstmt.setString(3, code);
+
+            pstmt.executeUpdate();
+        }
     }
 }

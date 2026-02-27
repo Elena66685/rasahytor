@@ -70,6 +70,7 @@ public class OrderController {
     private final Stage primaryStage = new Stage();
     int id_client;
     int orders_id;
+    int price;
     @FXML
     private Button pdf;
 
@@ -586,14 +587,18 @@ public class OrderController {
                     if (serviceName == null || serviceName.trim().isEmpty()) {
                         continue;
                     }
-
                     try (ResultSet resultSet1 = dbConnector.getServicesId(serviceName.trim())) {
                         if (resultSet1.next()) {
                             int services_id = resultSet1.getInt("id");
+                            int cost = resultSet1.getInt("price");
+                            System.out.println(cost);
                             dbConnector.singUpOrdersServices(orders_id, services_id);
 
                             System.out.printf("Добавлена услуга: заказ=%d, услуга=%d, название='%s'%n",
                                     orders_id, services_id, serviceName);
+                            price += cost;
+                            System.out.println(price);
+
                         } else {
                             System.err.println("Услуга не найдена в БД: " + serviceName);
                         }
@@ -601,6 +606,7 @@ public class OrderController {
                         throw new RuntimeException(e);
                     }
                 }
+                AddPdf();
             } else {
                 System.out.println("Заказ с таким кодом уже существует");
             }
@@ -704,7 +710,7 @@ public class OrderController {
         String landlordAddress = "г.Нижний Новгород, ул.Ленина, 15";
 
         // Стоимость (можно рассчитать из выбранных услуг)
-        String serviceSum = "5000";
+        String serviceSum = String.valueOf(price);
 
         // Заменяем все плейсхолдеры
         String filled = template
@@ -719,7 +725,7 @@ public class OrderController {
                 .replace("{service_list}", servicesList)
                 .replace("{service_sum}", serviceSum)
                 .replace("{adress_landlord}", landlordAddress)
-                .replace("{ño landlord}", landlordName); // Исправляем опечатку в шаблоне
+                .replace("{no_landlord}", landlordName);
 
         return filled;
     }
