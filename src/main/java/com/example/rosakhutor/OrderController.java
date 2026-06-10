@@ -628,7 +628,7 @@ public class OrderController {
 
                 // 3. Конвертируем в PDF
                 String fileName = "Договор_№" + orders_id + ".pdf";
-                HtmlConverter.convertToPdf(filledHtml, new FileOutputStream(fileName));
+                HtmlConverter.convertToPdf(filledHtml, new FileOutputStream("samples/" + fileName));
 
                 System.out.println("PDF создан: " + fileName);
 
